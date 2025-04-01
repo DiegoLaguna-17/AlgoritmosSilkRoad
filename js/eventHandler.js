@@ -931,7 +931,7 @@ function visualizeAssignments(results) {
 
 // Modal Noroeste
 const northwestModalHTML = `
-<div id="northwestModal" class="modal" style="display: none; cursor: pointer;">
+<div id="northwestModal" class="modal" style="display: none; cursor: pointer; max-width: 700px;">
     <div class="modal-content">
         <span class="close-northwest-modal">&times;</span>
         <h3 style="color: #33FF80;">Resultado Noroeste</h3>
@@ -963,19 +963,80 @@ function northwestCornerAlgorithm(isMaximization) {
     });
 
     // Convert to arrays
-    const supplyNodes = Array.from(origins);
-    const demandNodes = Array.from(destinations);
+    let supplyNodes = Array.from(origins);
+    let demandNodes = Array.from(destinations);
 
     // Get supply and demand values from node attributes
-    const supplies = supplyNodes.map(id => graph.getSupplyDemandValue(id));
-    const demands = demandNodes.map(id => graph.getSupplyDemandValue(id));
+    let originalSupplies = supplyNodes.map(id => parseInt(graph.getSupplyDemandValue(id)) || 0);
+    let originalDemands = demandNodes.map(id => parseInt(graph.getSupplyDemandValue(id)) || 0);
 
-    // Check if total supply equals total demand
+    // Make copies for the algorithm to modify
+    let supplies = [...originalSupplies];
+    let demands = [...originalDemands];
+
+    // Calculate totals
     const totalSupply = supplies.reduce((a, b) => a + b, 0);
     const totalDemand = demands.reduce((a, b) => a + b, 0);
-    
+
+    // Wildcard completion mechanism
+    let wildcardAdded = false;
     if (totalSupply !== totalDemand) {
-        throw new Error(`La oferta total (${totalSupply}) no coincide con la demanda total (${totalDemand})`);
+        wildcardAdded = true;
+        if (totalSupply > totalDemand) {
+            // Add wildcard demand node
+            const wildcardValue = totalSupply - totalDemand;
+            const wildcardId = Math.max(...nodeIds) + 1;
+            
+            // Add wildcard node to demand nodes
+            demandNodes.push(wildcardId);
+            demands.push(wildcardValue);
+            originalDemands.push(wildcardValue);
+            
+            // Create edges from all supply nodes to wildcard node with weight 0
+            supplyNodes.forEach(fromId => {
+                edges.add({
+                    from: fromId,
+                    to: wildcardId,
+                    label: "0",
+                    arrows: 'to'
+                });
+            });
+            
+            // Add the wildcard node to the graph
+            nodes.add({
+                id: wildcardId,
+                label: `Nodo ${wildcardId}\nd:${wildcardValue}`,
+                color: '#FFA500' // Orange color for wildcard node
+            });
+        } else {
+            // Add wildcard supply node
+            const wildcardValue = totalDemand - totalSupply;
+            const wildcardId = Math.max(...nodeIds) + 1;
+            
+            // Add wildcard node to supply nodes
+            supplyNodes.push(wildcardId);
+            supplies.push(wildcardValue);
+            originalSupplies.push(wildcardValue);
+            
+            // Create edges from wildcard node to all demand nodes with weight 0
+            demandNodes.forEach(toId => {
+                edges.add({
+                    from: wildcardId,
+                    to: toId,
+                    label: "0",
+                    arrows: 'to'
+                });
+            });
+            
+            // Add the wildcard node to the graph
+            nodes.add({
+                id: wildcardId,
+                label: `Nodo ${wildcardId}\ns:${wildcardValue}`,
+                color: '#FFA500' // Orange color for wildcard node
+            });
+        }
+        // Update the adjacency matrix
+        updateAdjacencyMatrix();
     }
 
     // Create cost matrix with supply nodes as rows and demand nodes as columns
@@ -983,8 +1044,9 @@ function northwestCornerAlgorithm(isMaximization) {
         const fromIndex = nodeIds.indexOf(fromId);
         return demandNodes.map((toId, j) => {
             const toIndex = nodeIds.indexOf(toId);
-            const cost = parseInt(matrix[fromIndex][toIndex]) || 0;
-            return cost; // Always use original cost, we'll handle maximization differently
+            const edge = edges.get().find(e => e.from === fromId && e.to === toId);
+            const cost = edge ? parseInt(edge.label) || 0 : 0;
+            return cost;
         });
     });
 
@@ -994,92 +1056,181 @@ function northwestCornerAlgorithm(isMaximization) {
     let iterations = 0;
     let i = 0, j = 0;
 
-    // For maximization, we need to find the maximum possible total cost
-    if (isMaximization) {
-        // Create a copy of the cost matrix sorted in descending order
-        const sortedCosts = [];
-        for (let i = 0; i < supplyNodes.length; i++) {
-            for (let j = 0; j < demandNodes.length; j++) {
-                sortedCosts.push({
-                    i, j,
-                    cost: costMatrix[i][j]
-                });
-            }
-        }
-        sortedCosts.sort((a, b) => b.cost - a.cost); // Sort descending
+    // Northwest Corner algorithm
+    while (i < supplyNodes.length && j < demandNodes.length) {
+        iterations++;
+        const supply = supplies[i];
+        const demand = demands[j];
         
-        // Make copies of supplies and demands that we can modify
-        const remainingSupplies = [...supplies];
-        const remainingDemands = [...demands];
+        if (supply <= 0 || demand <= 0) {
+            // Skip if no supply or demand left
+            if (supply <= 0) i++;
+            if (demand <= 0) j++;
+            continue;
+        }
         
-        // Assign allocations starting from the highest cost
-        for (const {i, j, cost} of sortedCosts) {
-            if (remainingSupplies[i] <= 0 || remainingDemands[j] <= 0) continue;
-            
-            const allocation = Math.min(remainingSupplies[i], remainingDemands[j]);
-            allocations[i][j] = allocation;
-            totalCost += allocation * cost;
-            
-            remainingSupplies[i] -= allocation;
-            remainingDemands[j] -= allocation;
-            iterations++;
-        }
-    } 
-    // For minimization (original northwest corner algorithm)
-    else {
-        // Northwest Corner algorithm
-        while (i < supplyNodes.length && j < demandNodes.length) {
-            iterations++;
-            const supply = supplies[i];
-            const demand = demands[j];
-            
-            if (supply <= 0 || demand <= 0) {
-                // Skip if no supply or demand left
-                if (supply <= 0) i++;
-                if (demand <= 0) j++;
-                continue;
-            }
-            
-            const allocation = Math.min(supply, demand);
-            allocations[i][j] = allocation;
-            
-            // Update supply and demand
-            supplies[i] -= allocation;
-            demands[j] -= allocation;
-            
-            // Calculate cost
-            totalCost += allocation * costMatrix[i][j];
-            
-            // Move to next cell
-            if (supplies[i] === 0) i++;
-            if (demands[j] === 0) j++;
-        }
+        const allocation = Math.min(supply, demand);
+        allocations[i][j] = allocation;
+        
+        // Update supply and demand
+        supplies[i] -= allocation;
+        demands[j] -= allocation;
+        
+        // Calculate cost
+        totalCost += allocation * costMatrix[i][j];
+        
+        // Move to next cell
+        if (supplies[i] === 0) i++;
+        if (demands[j] === 0) j++;
     }
 
     return {
         totalCost,
-        iterations
+        iterations,
+        allocations,
+        supplyNodes,
+        demandNodes,
+        originalSupplies,
+        originalDemands,
+        wildcardAdded
     };
 }
 
 function visualizeNorthwestResults(results) {
-    const { totalCost, iterations } = results;
+    const { 
+        totalCost, 
+        iterations, 
+        allocations, 
+        supplyNodes, 
+        demandNodes,
+        originalSupplies,
+        originalDemands,
+        wildcardAdded
+    } = results;
     
-    // Color all nodes orange to indicate algorithm was applied
+    // Color all nodes to indicate algorithm was applied
     nodes.get().forEach(node => {
+        const isSupply = supplyNodes.includes(node.id);
+        const isDemand = demandNodes.includes(node.id);
+        
         nodes.update({
             id: node.id,
-            color: '#33FF80'
+            color: isSupply ? '#33FF80' : (isDemand ? '#FF5733' : '#00E3C6')
         });
+    });
+
+    // Color edges with allocations
+    edges.get().forEach(edge => {
+        const fromIndex = supplyNodes.indexOf(edge.from);
+        const toIndex = demandNodes.indexOf(edge.to);
+        
+        if (fromIndex !== -1 && toIndex !== -1 && allocations[fromIndex][toIndex] > 0) {
+            edges.update({
+                id: edge.id,
+                color: '#FFD700', // Gold color for allocated edges
+                width: 3,
+                label: `${edge.label} (${allocations[fromIndex][toIndex]})`
+            });
+        }
     });
 
     // Show results in modal
     const modal = document.getElementById('northwestModal');
     const resultsDiv = document.getElementById('northwestResults');
     
+    // Create cost matrix (initial state, without allocations)
+    const costMatrix = supplyNodes.map(fromId => {
+        return demandNodes.map(toId => {
+            const edge = edges.get().find(e => e.from === fromId && e.to === toId);
+            return edge ? parseInt(edge.label) || 0 : 0;
+        });
+    });
+
+    // Calculate totals
+    const totalSupply = originalSupplies.reduce((a, b) => a + b, 0);
+    const totalDemand = originalDemands.reduce((a, b) => a + b, 0);
+    
+    // Create tables - one for costs and one for allocations
+    let costTable = '<table border="1" style="width:100%; border-collapse: collapse; margin-top: 10px;">';
+    costTable += '<caption style="margin-bottom: 5px; font-weight: bold;">Matriz de Costos Inicial</caption>';
+    costTable += '<tr><th></th>';
+    
+    // Add demand headers
+    demandNodes.forEach(id => {
+        const node = nodes.get(id);
+        costTable += `<th>${node.label.split('\n')[0]}</th>`;
+    });
+    costTable += '<th>Oferta</th></tr>';
+    
+    // Add rows with supply and costs
+    supplyNodes.forEach((id, i) => {
+        const node = nodes.get(id);
+        costTable += `<tr><td>${node.label.split('\n')[0]}</td>`;
+        
+        demandNodes.forEach((_, j) => {
+            costTable += `<td>${costMatrix[i][j]}</td>`;
+        });
+        
+        // Show supply
+        costTable += `<td>${originalSupplies[i]}</td></tr>`;
+    });
+    
+    // Add demand totals row
+    costTable += '<tr><td>Demanda</td>';
+    demandNodes.forEach((_, j) => {
+        costTable += `<td>${originalDemands[j]}</td>`;
+    });
+    // Add sum in last cell
+    costTable += `<td><strong>${totalSupply}</strong></td></tr>`;
+    
+    costTable += '</table>';
+
+    // Create allocations table
+    let allocationTable = '<table border="1" style="width:100%; border-collapse: collapse; margin-top: 20px;">';
+    allocationTable += '<caption style="margin-bottom: 5px; font-weight: bold;">Asignaciones</caption>';
+    allocationTable += '<tr><th></th>';
+    
+    // Add demand headers
+    demandNodes.forEach(id => {
+        const node = nodes.get(id);
+        allocationTable += `<th>${node.label.split('\n')[0]}</th>`;
+    });
+    allocationTable += '<th>Oferta</th></tr>';
+    
+    // Add rows with supply and allocations
+    supplyNodes.forEach((id, i) => {
+        const node = nodes.get(id);
+        allocationTable += `<tr><td>${node.label.split('\n')[0]}</td>`;
+        
+        demandNodes.forEach((_, j) => {
+            const alloc = allocations[i][j] || 0;
+            allocationTable += `<td>${alloc > 0 ? alloc : '-'}</td>`;
+        });
+        
+        // Show remaining supply
+        const remainingSupply = originalSupplies[i] - allocations[i].reduce((a, b) => a + b, 0);
+        allocationTable += `<td>${remainingSupply}</td></tr>`;
+    });
+    
+    // Add demand totals row
+    allocationTable += '<tr><td>Demanda</td>';
+    demandNodes.forEach((_, j) => {
+        const remainingDemand = originalDemands[j] - allocations.reduce((a, b) => a + b[j], 0);
+        allocationTable += `<td>${remainingDemand}</td>`;
+    });
+    allocationTable += '<td></td></tr>';
+    
+    if (wildcardAdded) {
+        allocationTable += '<tr><td colspan="' + (demandNodes.length + 2) + '" style="text-align: center; color: orange;">* Se aplicó balanceo automático</td></tr>';
+    }
+    
+    allocationTable += '</table>';
+    
     resultsDiv.innerHTML = `
         <p>Iteraciones: <span id="iterationCount">${iterations}</span></p>
-        <p>Costo total = <span id="northwestTotalCost">${totalCost}</span></p>
+        ${costTable}
+        ${allocationTable}
+        <p style="margin-top: 10px;">Costo total = <span id="northwestTotalCost">${totalCost}</span></p>
     `;
     
     modal.style.display = 'block';

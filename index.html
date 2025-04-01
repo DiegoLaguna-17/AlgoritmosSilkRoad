@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/vis-network@latest/dist/vis-network.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles2.css">
+    <title>Editor de Grafos</title>
+</head>
+<body>
+    <div class="container">
+        <!-- Menu -->
+        <button id="menuButton" class="menu-button">☰ Menú</button>
+
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar">
+            <!-- Parte 1 -->
+            <div class="settings-header">
+                <h2>Algoritmos</h2>
+            </div>
+
+            <!-- Parte 2 -->
+            <div class="settings-buttons">
+                <a href="https://www.youtube.com/embed/T0PaWvbp6LY?si=RCDrFslQHMBJ-eaG" target="_blank"class="settings-button">
+                    <img src="media/logoVideo.png" alt="Ver video" class="button-icon">
+                </a>
+                <a href="https://drive.google.com/drive/folders/1UnOalFcINUCjtICcSH5-tlmoRnPbxXtN"target="_blank" class="settings-button">
+                    <img src="media/logoDescargar.png" alt="Descargar PDF" class="button-icon">
+                </a>
+            </div>
+
+            <!-- Parte 3 -->
+            <div class="settings-menu">
+                <h3>Seleccione un algoritmo:</h3>
+                <label class="radio-button">
+                    <input type="radio" name="algorithm" value="grafo">
+                    <span class="radio-label">Grafo</span>
+                </label>
+                <label class="radio-button">
+                    <input type="radio" name="algorithm" value="cpm" checked>
+                    <span class="radio-label">Johnson</span>
+                </label>
+                <label class="radio-button">
+                    <input type="radio" name="algorithm" value="Asignacion">
+                    <span class="radio-label">Asignación</span>
+                </label>
+                <label class="radio-button">
+                    <input type="radio" name="algorithm" value="noroeste">
+                    <span class="radio-label">Noroeste</span>
+                </label>
+                <!-- Aquí van más algoritmos -->
+            </div>
+        </div>
+
+        <!-- SVG -->
+        <div class="column-svg">
+            <!-- Panel de Control -->
+            <div class="controls">
+                <span id="currentAlgorithm" style="margin-right: 20px; font-weight: bold; color: white;">Actual: Johnson</span>
+                <div id="checkboxGroup1" class="hidden">
+                    <br><br>
+                    <label style="color: white;"><input type="radio" name="check" checked value="true">Maximizar</label>
+                    <label style="color: white;"><input type="radio" name="check" value="false"> Minimizar</label>
+                </div>
+
+                <button id="vaciarBtn">Vaciar Lienzo</button>
+                <button id="guardarGrafo">Guardar</button>
+                <button id="importarDato">Importar Grafo</button>
+                <input type="file" id="archivo" accept="application/json" style="display: none;">
+                <button id="solve-btn">Resolver</button>
+            </div>
+
+            <!-- Contenedor para Grafos -->
+            <div id="network"></div>
+
+            <!-- Matriz de Adyacencia -->
+            <div class="matriz-container">
+                <h1>Matriz de adyacencia</h1>
+                <div class="matriz-scroll">
+                    <table id="tablaMatriz" class="matriz"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Node Context Menu -->
+    <div id="nodeContextMenu" class="context-menu" style="display: none; position: absolute;">
+        <button id="addLoopBtn">Agregar Bucle</button>
+        <button id="changeLabelBtn">Cambiar nombre</button>
+        <input type="color" id="nodeColorPicker" value="#00E3C6">
+        <button id="deleteNodeBtn">Borrar nodo</button>
+    </div>
+
+    <!-- Edge Context Button -->
+    <div id="edgeContextButton" class="edge-context-button" style="display: none; position: absolute;">
+        <button id="changeWeightBtn">✏️</button>
+    </div>
+
+    <script type="module" src="/js/eventHandler.js"></script>
+
+    <script>
+        const menuButton = document.getElementById("menuButton");
+        const sidebar = document.getElementById("sidebar");
+
+        menuButton.addEventListener("click", () => {
+            sidebar.classList.toggle("active");
+        });
+    </script>
+</body>
+</html>

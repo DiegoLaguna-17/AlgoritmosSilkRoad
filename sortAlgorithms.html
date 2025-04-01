@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador de Algoritmos</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="css/sort.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Visualizador de Algoritmos de Ordenamiento</h1>
+        </header>
+
+        <main class="main-content">
+            <div class="visualization-container">
+                <svg width="1000" height="600" id="chart"></svg>
+                <div class="controls">
+                    <div class="sort-buttons">
+                        <button onclick="selectionSort()" class="sort-btn">Selection Sort</button>
+                        <button onclick="insertionSort()" class="sort-btn">Insertion Sort</button>
+                        <button onclick="shellSort()" class="sort-btn">Shell Sort</button>
+                        <button onclick="mergeSort()" class="sort-btn">Merge Sort</button>
+                    </div>
+                    <div class="stats-display" id="stats">Tiempo: 0 ms | Intercambios: 0</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let array = [];
+        let swapCount = 0;
+        const svg = d3.select("#chart");
+        const statsDisplay = document.getElementById("stats");
+        const svgHeight = 600;
+        const svgWidth = 1000;
+        const maxBarHeight = svgHeight * 0.9;
+        const containerWidthPercentage = 0.95;
+
+
+        // Función para obtener parámetros de la URL
+        function getQueryParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                minimo: params.get('minimo'),
+                maximo: params.get('maximo'),
+                cantidad: params.get('cantidad'),
+                elementos: params.get('elementos')
+            };
+        }
+
+        // Función para normalizar los valores
+        function normalizeValues(data) {
+            const maxValue = Math.max(...data);
+            return data.map(value => (value / maxValue) * maxBarHeight);
+        }
+
+        // Función para calcular el ancho de cada barra
+        function calculateBarWidth(dataLength) {
+            const totalAvailableWidth = svgWidth * containerWidthPercentage;
+            return totalAvailableWidth / dataLength;
+        }
+
+        // Función para actualizar el gráfico
+        function updateChart() {
+            const normalizedArray = normalizeValues(array);
+            const barWidth = calculateBarWidth(array.length);
+
+            svg.selectAll("*").remove();
+
+            svg.selectAll("rect")
+                .data(normalizedArray)
+                .enter()
+                .append("rect")
+                .attr("x", (d, i) => i * barWidth)
+                .attr("y", d => svgHeight - d)
+                .attr("width", barWidth - 2)
+                .attr("height", d => d)
+                .attr("fill", "var(--primary-color)");
+
+            svg.selectAll(".value-label")
+                .data(array)
+                .enter()
+                .append("text")
+                .attr("class", "value-label")
+                .attr("x", (d, i) => i * barWidth + barWidth / 2)
+                .attr("y", (d, i) => svgHeight - normalizedArray[i] - 5)
+                .attr("text-anchor", "middle")
+                .attr("fill", "black")
+                .text(d => d);
+
+            svg.selectAll(".index-label")
+                .data(array)
+                .enter()
+                .append("text")
+                .attr("class", "index-label")
+                .attr("x", (d, i) => i * barWidth + barWidth / 2)
+                .attr("y", svgHeight + 20)
+                .attr("text-anchor", "middle")
+                .attr("fill", "black")
+                .text((d, i) => i);
+        }
+
+        // Función para generar barras aleatorias básicas
+        // function generateBars() {
+        //     array = Array.from({length: 33}, () => Math.floor(Math.random() * 200) + 1);
+        //     swapCount = 0;
+        //     statsDisplay.textContent = "Tiempo: 0 ms | Intercambios: 0";
+        //     updateChart();
+        // }
+
+        // Función para generar barras con datos aleatorios desde formulario externo
+        function generateRandomFromForm() {
+            const params = getQueryParams();
+            if (params.minimo && params.maximo && params.cantidad) {
+                const min = parseInt(params.minimo);
+                const max = parseInt(params.maximo);
+                const count = parseInt(params.cantidad);
+                array = Array.from({length: count}, () => Math.floor(Math.random() * (max - min + 1)) + min);
+                swapCount = 0;
+                statsDisplay.textContent = "Tiempo: 0 s | Intercambios: 0";
+                updateChart();
+            }
+        }
+
+        // Función para generar barras con datos manuales desde formulario externo
+        function generateManualFromForm() {
+            const params = getQueryParams();
+            if (params.elementos) {
+                array = params.elementos.split(",").map(Number).filter(n => !isNaN(n));
+                swapCount = 0;
+                statsDisplay.textContent = "Tiempo: 0 ms | Intercambios: 0";
+                updateChart();
+            }
+        }
+
+        // Función para actualizar las barras
+        function updateBars() {
+            return new Promise(resolve => {
+                const normalizedArray = normalizeValues(array);
+                const barWidth = calculateBarWidth(array.length);
+
+                svg.selectAll("rect")
+                    .data(normalizedArray)
+                    .transition()
+                    .duration(100)
+                    .attr("x", (d, i) => i * barWidth)
+                    .attr("y", d => svgHeight - d)
+                    .attr("width", barWidth - 2)
+                    .attr("height", d => d);
+
+                svg.selectAll(".value-label")
+                    .data(array)
+                    .transition()
+                    .duration(200)
+                    .attr("x", (d, i) => i * barWidth + barWidth / 2)
+                    .attr("y", (d, i) => svgHeight - normalizedArray[i] - 5)
+                    .text(d => d);
+
+                setTimeout(resolve, 200);
+            });
+        }
+
+        // FUNCIONES DE ORDENAMIENTO (se mantienen igual)
+        async function selectionSort() {
+            let startTime = performance.now();
+            swapCount = 0;
+
+            for (let i = 0; i < array.length; i++) {
+                let min = i;
+                for (let j = i + 1; j < array.length; j++) {
+                    svg.selectAll("rect")
+                        .attr("fill", (d, idx) => (idx === i || idx === j) ? "var(--active-bar-color)" : "var(--bar-color)");
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    playSound(array[j] * 5, 100);
+                    if (array[j] < array[min]) {
+                        min = j;
+                    }
+                }
+                if (min !== i) {
+                    [array[i], array[min]] = [array[min], array[i]];
+                    swapCount++;
+                    playSound(array[i] * 5, 100);
+                    await updateBars();
+                }
+                svg.selectAll("rect").attr("fill", "var(--bar-color)");
+            }
+    
+            let endTime = performance.now();
+            statsDisplay.textContent = `Tiempo: ${((endTime - startTime)/1000).toFixed(2)} s | Intercambios: ${swapCount}`;
+        }
+
+        async function insertionSort() {
+            let startTime = performance.now();
+            swapCount = 0;
+
+            for (let i = 1; i < array.length; i++) {
+                let key = array[i];
+                let j = i - 1;
+                while (j >= 0 && array[j] > key) {
+                    playSound(array[j] * 5, 100);
+                    svg.selectAll("rect")
+                        .attr("fill", (d, idx) => (idx === j || idx === j + 1) ? "var(--active-bar-color)" : "var(--bar-color)");
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    array[j + 1] = array[j];
+                    j--;
+                    swapCount++;    
+                }
+                array[j + 1] = key;
+                playSound(key * 5, 200);
+                await updateBars();
+            }
+
+            let endTime = performance.now();
+            statsDisplay.textContent = `Tiempo: ${((endTime - startTime)/1000).toFixed(2)} s | Intercambios: ${swapCount}`;
+        }
+
+        async function shellSort() {
+            let startTime = performance.now();
+            swapCount = 0;
+
+            let n = array.length;
+            for (let gap = Math.floor(n / 2); gap > 0; gap = Math.floor(gap / 2)) {
+                for (let i = gap; i < n; i++) {
+                    let temp = array[i];
+                    let j;
+                    for (j = i; j >= gap && array[j - gap] > temp; j -= gap) {
+                        playSound(array[j]*5, 100)
+                        svg.selectAll("rect")
+                            .attr("fill", (d, idx) => (idx === j || idx === j - gap) ? "var(--active-bar-color)" : "var(--bar-color)");
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        array[j] = array[j - gap];
+                        swapCount++;
+                        await updateBars();
+                    }
+                    array[j] = temp;
+                    playSound(temp*5,100)
+                    await updateBars();
+                }
+            }
+
+            let endTime = performance.now();
+            statsDisplay.textContent = `Tiempo: ${((endTime - startTime)/1000).toFixed(2)} s | Intercambios: ${swapCount}`;
+        }
+
+        async function mergeSort() {
+            let startTime = performance.now();
+            swapCount = 0;
+
+            async function merge(arr, l, m, r) {
+                let n1 = m - l + 1;
+                let n2 = r - m;
+                let L = new Array(n1);
+                let R = new Array(n2);
+
+                for (let i = 0; i < n1; i++) L[i] = arr[l + i];
+                for (let j = 0; j < n2; j++) R[j] = arr[m + 1 + j];
+
+                let i = 0, j = 0, k = l;
+                while (i < n1 && j < n2) {
+                    playSound(arr[k] * 5, 80);
+                    if (L[i] <= R[j]) {
+                        arr[k] = L[i];
+                        i++;
+                    } else {
+                        arr[k] = R[j];
+                        j++;
+                        swapCount++;
+                    }
+                    svg.selectAll("rect")
+                        .attr("fill", (d, idx) => (idx === k) ? "var(--active-bar-color)" : "var(--bar-color)");
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    k++;
+                }
+
+                while (i < n1) {
+                    arr[k] = L[i];
+                    playSound(L[i] * 5, 120);
+                    i++;
+                    k++;
+                }
+
+                while (j < n2) {
+                    arr[k] = R[j];
+                    playSound(R[j] * 5, 120);
+                    j++;
+                    k++;
+                }
+                await updateBars();
+            }
+
+            async function sort(arr, l, r) {
+                if (l >= r) return;
+                let m = l + Math.floor((r - l) / 2);
+                await sort(arr, l, m);
+                await sort(arr, m + 1, r);
+                await merge(arr, l, m, r);
+            }
+
+            await sort(array, 0, array.length - 1);
+            
+            let endTime = performance.now();
+            statsDisplay.textContent = `Tiempo: ${((endTime - startTime)/1000).toFixed(2)} s | Intercambios: ${swapCount}`;
+        }
+
+        function playSound(frequency = 1000, duration = 500, volume = 0.3) {
+    const context = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = context.createOscillator();
+    const gainNode = context.createGain();
+
+    // Aumenta esta frecuencia para sonidos más agudos
+    oscillator.frequency.value = frequency; // Valor por defecto: 1000 Hz (bastante agudo)
+    oscillator.type = "sine"; // También puedes probar con "square" o "sawtooth" para timbres más agudos
+    gainNode.gain.value = volume;
+
+    oscillator.connect(gainNode);
+    gainNode.connect(context.destination);
+
+    oscillator.start();
+    
+    // Fade out para evitar clicks
+    gainNode.gain.setValueAtTime(volume, context.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, context.currentTime + duration/1000);
+
+    setTimeout(() => {
+        oscillator.stop();
+        context.close();
+    }, duration);
+}
+
+        // Al cargar la página, verificar si hay parámetros para generar datos
+        window.onload = function() {
+            const params = getQueryParams();
+            if (params.elementos) {
+                generateManualFromForm();
+            } else if (params.minimo && params.maximo && params.cantidad) {
+                generateRandomFromForm();
+            } else {
+                generateBars();
+            }
+        };
+    </script>
+    
+</body>
+</html>

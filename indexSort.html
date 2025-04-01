@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio Sorts</title>
+    <link rel="stylesheet" href="css/index.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>Los Algoritmos SORT</h1>
+    </header>
+
+    <!-- seccion de tu propio generador -->
+    <section id="ingresar">
+        <div class="container">
+            <div id="tituloGeneral">
+                <h2>Genera tu propio ordenamiento</h2>
+                <img src="imagenes/logo sort.jpg" alt="logo sort" class="logo-img">
+            </div>
+            <div id="generar">
+                <!-- botones para manual o aleatorio -->
+                <div id="botones">
+                    <button id="aleatorio" class="btn-primary">Aleatorio</button>
+                    <button id="manual" class="btn-primary">Manual</button>
+                </div>
+                <!-- campo para los formularios  -->
+                <div class="forms-container">
+                    <!-- Seccion de los aleatorios -->
+                    <div id="formularioAleatorio" class="formulario card">
+                        <form id="formAleatorio" action="sortAlgorithms.html" method="GET">
+                            <div class="form-group">
+                                <label for="minimo">Límite inferior</label>
+                                <input type="number" id="minimo" name="minimo" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="maximo">Límite superior</label>
+                                <input type="number" id="maximo" name="maximo" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="cantidad">Cantidad de números</label>
+                                <input type="number" id="cantidad" name="cantidad" class="form-input">
+                            </div>
+                            <button type="submit" class="btn-submit">Aceptar</button>
+                        </form>
+                    </div>
+
+                    <!-- Sección de los manuales -->
+                    <div id="formularioManual" class="formulario card">
+                        <form id="formManual" action="sortAlgorithms.html" method="GET">
+                            <div class="form-group">
+                                <label for="elementos">Ingresa los números separados por comas</label>
+                                <input type="text" id="elementos" name="elementos" class="form-input" placeholder="Ejemplo: 5, 10, 15, 20">
+                            </div>
+                            <button type="submit" class="btn-submit">Aceptar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- seccion de las cosas teoricas -->
+    <section id="teoria">
+        <div class="section-title">
+            <h2>Teoría de Algoritmos de Ordenamiento</h2>
+        </div>
+        
+        <!-- que son los ordenamiento sort -->
+        <div class="parte card">
+            <div class="parte-header">
+                <h3>¿Qué son los métodos de ordenamiento sort?</h3>
+            </div>
+            <div class="parte-content">
+                <p>Los métodos de ordenamiento sort son algoritmos utilizados para reorganizar los elementos de una 
+                    colección (como arreglos o listas) en un orden específico, generalmente ascendente o descendente. 
+                    Estos algoritmos pueden clasificarse en dos tipos: internos, cuando el ordenamiento se realiza en 
+                    memoria, y externos, cuando se requiere almacenamiento auxiliar debido al gran volumen de datos.</p>
+            </div>
+        </div>
+        
+        <!-- tipos de ordenamientos -->
+        <div class="parte card">
+            <div class="parte-header">
+                <h3>¿Cuáles son los tipos de sort?</h3>
+            </div>
+            <div class="parte-content">
+                <div class="algorithm">
+                    <h4>Selection Sort:</h4>
+                    <p>Es un algoritmo de ordenamiento que divide la lista en una parte ordenada y otra desordenada. En cada 
+                        iteración, busca el elemento más pequeño de la parte desordenada y lo intercambia con el primer 
+                        elemento de esa sección. Este proceso se repite hasta que toda la lista queda ordenada. Su principal 
+                        ventaja es la simplicidad, pero su rendimiento es bajo en listas grandes debido a su complejidad de 
+                        O(n²).</p>
+                </div>
+                
+                <div class="algorithm">
+                    <h4>Insertion Sort:</h4>
+                    <p>Es un algoritmo de ordenamiento que construye la lista ordenada de manera incremental. 
+                        Recorre la lista de izquierda a derecha y, en cada paso, toma un elemento y lo coloca en la posición 
+                        correcta dentro de la parte ya ordenada, desplazando los elementos mayores hacia la derecha. Es 
+                        eficiente para listas pequeñas o casi ordenadas, con un mejor caso de O(n) y un peor caso de O(n²).</p>
+                </div>
+                
+                <div class="algorithm">
+                    <h4>Shell Sort:</h4>
+                    <p>Es una mejora de Insertion Sort que introduce la idea de comparar y mover elementos que están 
+                        separados por una distancia determinada (gap). Inicialmente, se ordenan elementos con una separación 
+                        grande, y luego se reduce esta distancia progresivamente hasta que el algoritmo se comporta como un 
+                        Insertion Sort estándar. Su complejidad varía según la secuencia de gaps utilizada, pero puede 
+                        alcanzar O(n log n) en algunos casos.</p>
+                </div>
+                
+                <div class="algorithm">
+                    <h4>Merge Sort:</h4>
+                    <p>Es un algoritmo de ordenamiento basado en el paradigma divide y vencerás. Divide la lista en mitades 
+                        recursivamente hasta que las sublistas sean lo suficientemente pequeñas, luego las ordena y las 
+                        fusiona en una lista final ordenada. Su principal ventaja es su eficiencia, con una complejidad de 
+                        O(n log n) en todos los casos, lo que lo hace adecuado para ordenar grandes volúmenes de datos, 
+                        aunque requiere memoria adicional para la fusión de sublistas.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- aplicacion de los sort -->
+        <div class="parte card">
+            <div class="parte-header">
+                <h3>¿Cuáles son sus aplicaciones?</h3>
+            </div>
+            <div class="parte-content">
+                <div class="application">
+                    <h4>Procesamiento de imágenes y gráficos:</h4>
+                    <p>Algoritmos como Merge Sort se usan en técnicas de filtrado y 
+                        segmentación de imágenes, ayudando a mejorar la calidad de fotos y vídeos en aplicaciones como 
+                        Photoshop y cámaras digitales.</p>
+                </div>
+                
+                <div class="application">
+                    <h4>Enrutamiento en redes y telecomunicaciones:</h4>
+                    <p>Shell Sort y otros métodos optimizan la transmisión de 
+                        datos al ordenar paquetes de información en redes de alta velocidad, mejorando la eficiencia de 
+                        internet y telecomunicaciones.</p>
+                </div>
+                
+                <div class="application">
+                    <h4>Mercado de valores y análisis financiero:</h4>
+                    <p>Insertion Sort y Merge Sort ayudan a clasificar grandes 
+                        volúmenes de datos bursátiles en tiempo real para predecir tendencias y tomar decisiones de inversión
+                        más rápidas.</p>
+                </div>
+                
+                <div class="application">
+                    <h4>Sistemas de recomendación y motores de búsqueda:</h4>
+                    <p>Selection Sort y otros algoritmos organizan 
+                        resultados de búsqueda en plataformas como Google y sistemas de recomendación en Netflix y Amazon, 
+                        mejorando la experiencia del usuario.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Obtener referencias a los elementos del DOM
+        const aleatorio = document.getElementById('aleatorio');
+        const manual = document.getElementById('manual');
+        const formularioAleatorio = document.getElementById('formularioAleatorio');
+        const formularioManual = document.getElementById('formularioManual');
+
+        // Función para ocultar formularios
+        function ocultarSecciones() {
+            formularioAleatorio.style.display = 'none';
+            formularioManual.style.display = 'none';
+        }
+
+        // Mostrar formulario aleatorio
+        aleatorio.addEventListener('click', () => {
+            if (formularioAleatorio.style.display === 'none' || formularioAleatorio.style.display === '') {
+                ocultarSecciones();
+                formularioAleatorio.style.display = 'block';
+            } else {
+                formularioAleatorio.style.display = 'none';
+            }
+        });
+
+        // Mostrar formulario manual
+        manual.addEventListener('click', () => {
+            if (formularioManual.style.display === 'none' || formularioManual.style.display === '') {
+                ocultarSecciones();
+                formularioManual.style.display = 'block';
+            } else {
+                formularioManual.style.display = 'none';
+            }
+        });
+    </script>
+
+</body>
+</html>

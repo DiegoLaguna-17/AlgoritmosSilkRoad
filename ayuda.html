@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayuda</title>
+    <style>
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            background-color: #5D8736;
+            color: white;
+            padding: 15px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-container img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .logo-container h3 {
+            margin: 0;
+            font-size: 25px;
+            font-family: Soleil;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        nav ul li {
+            display: inline;
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 17px;
+            padding: 10px 15px;
+            transition: background-color 0.3s, color 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        nav ul li a:hover {
+            background-color: #C84C05;
+            color: whitesmoke;
+            border-radius: 5px;
+            text-decoration: underline;
+            text-decoration-color: black;
+        }
+        body { font-family: Arial, sans-serif; user-select: none;background-color: rgb(187, 242, 139);}
+        .cards{
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            gap:40px;
+            padding: 30px;
+            box-shadow: 30px;
+        }
+        .card1 {
+            background-color: #F09319;
+            width: 600px;
+            height: 550px;
+            justify-content: center; 
+            align-items: center; 
+            border-radius: 20px;
+            border: 3px solid #124076; 
+            text-align: center; 
+            padding:30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);  
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+        .card1 h1, .card2 h1 {
+            font-size: 200%;
+            font-family:'Calibri';
+        }
+        .card1 p{
+            color:aliceblue;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        }
+        .card2 p{
+            color:aliceblue;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        }
+        .card1:hover {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); 
+        }
+
+        .card2 {
+            background-color: #F09319;
+            width: 600px;
+            height: 550px;
+            justify-content: center; 
+            align-items: center; 
+            border-radius: 20px;
+            border: 3px solid #124076; 
+            text-align: center; 
+            padding:30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);  
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        .card2 img {
+            width: 90%; 
+            height: auto; 
+            background-color: transparent; 
+            border-radius: 10px; 
+        }
+        .card2:hover {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); 
+        }
+
+        .card2 .button button {
+            background-color: #5D8736;
+            color: white;
+            font-size: 20px;
+            width: 200px;
+            height: 87px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card2 .button button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            background-color: #3f5c26;
+        }
+        .card1:hover, .card2:hover {
+            transform: scale(1.1); 
+            z-index: 5; 
+        }
+
+    </style>
+</head>
+<header>
+    <div class="logo-container">
+        <img src="algorithm_8616578.png" alt="Logo">
+        <h3>ANÁLISIS DE ALGORITMOS</h3>
+    </div>
+    <nav>
+        <ul>
+            <li><a href="index.html">Inicio</a></li>
+        </ul>
+    </nav>
+</header>
+<body>
+    <div class="container">
+        <h1>Encuentra el contenido explicativo del manejo de la página web</h1>
+        <div class="cards">
+            <div class="card1">
+                <h1>Encuentra aquí un video explicativo de la página</h1>
+                <p>Haz click en el video explicativo para ver el tutorial de cómo insertar, modificar y eliminar grafos</p>
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/T0PaWvbp6LY?si=RCDrFslQHMBJ-eaG" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+            <div class="card2">
+                <h1>Descarga la guía pdf para el manejo de los grafos</h1>
+                <p>Haz click en el siguiente boton para descargar la guía pdf para manejar los grafos</p>
+                <img src="images.png" alt="img"> 
+                <div class="button">
+                    <a href="https://drive.google.com/file/d/1To0htefY4ikNB-tiane_ffetMHST-yK8/view?usp=sharing" target="_blank">
+                        <button>DESCARGA AQUÍ</button>
+                    </a>
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</body>
+</html>

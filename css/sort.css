@@ -1,0 +1,168 @@
+:root {
+    --primary-color: #00969C;
+    --secondary-color: #00E3C6;
+    --accent-color: #D6FBF7;
+    --dark-color: #314942;
+    --light-color: #FFFFFF;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+    --bar-color: #00E3C6;       /* Color normal de las barras (antes azul) */
+    --active-bar-color: #314942; /* Color de barras activas (antes rojo) */
+    --sorted-bar-color: #00969C;  /* Color para barras ya ordenadas */
+}
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--primary-color);
+    color: var(--light-color);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    flex: 1;
+}
+
+.header {
+    background-color: var(--dark-color);
+    color: var(--accent-color);
+    padding: 20px;
+    text-align: center;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    box-shadow: var(--shadow);
+}
+
+.header h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+}
+
+.main-content {
+    background-color: var(--light-color);
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: var(--shadow);
+}
+
+.visualization-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+#chart {
+    background-color: var(--light-color);
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.controls {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.sort-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+}
+
+.sort-btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 30px;
+    background-color: var(--secondary-color);
+    color: var(--dark-color);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--shadow);
+    min-width: 150px;
+}
+
+.sort-btn:hover {
+    background-color: var(--dark-color);
+    color: var(--accent-color);
+    transform: translateY(-3px);
+}
+
+.stats-display {
+    background-color: var(--dark-color);
+    color: var(--accent-color);
+    padding: 15px 25px;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    box-shadow: var(--shadow);
+}
+
+/* Estilos para las barras y etiquetas */
+.bar {
+    fill: var(--secondary-color);
+    transition: fill 0.3s ease;
+}
+
+.bar:hover {
+    fill: var(--dark-color);
+}
+
+.value-label, .index-label {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.value-label {
+    fill: var(--dark-color);
+}
+
+.index-label {
+    fill: var(--dark-color);
+}
+
+/* Responsive design */
+@media (max-width: 1100px) {
+    #chart {
+        width: 100%;
+        height: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .sort-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .sort-btn {
+        width: 100%;
+    }
+    
+    .stats-display {
+        width: 100%;
+        text-align: center;
+    }
+}

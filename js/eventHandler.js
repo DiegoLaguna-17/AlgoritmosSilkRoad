@@ -57,6 +57,7 @@ const vaciarBtn = document.getElementById('vaciarBtn');
 const guardarGrafo = document.getElementById('guardarGrafo');
 const importarDato = document.getElementById('importarDato');
 const solve_btn = document.getElementById('solve-btn'); 
+const help_btn=document.getElementById('help-btn');
 const edgeContextButton = document.getElementById('edgeContextButton');
 const changeWeightBtn = document.getElementById('changeWeightBtn');
 
@@ -1240,6 +1241,25 @@ function visualizeNorthwestResults(results) {
     };
 }
 
+help_btn.addEventListener('click', function() {
+    const selectedAlgorithm = document.querySelector('input[name="algorithm"]:checked').value;
+    let filePath = '';
+
+    switch (selectedAlgorithm) {
+        case 'cpm':
+            filePath = 'helps/johnson.pdf';
+            break;
+        case 'asignacion':
+            filePath = 'helps/asignacion.pdf';
+            break;
+        default:
+            filePath = 'helps/grafos.pdf';
+    }
+
+    window.open(filePath, '_blank'); // Abre el PDF en una nueva pestaña
+});
+
+
 solve_btn.addEventListener('click', function() {
     const selectedAlgorithm = document.querySelector('input[name="algorithm"]:checked').value;
     
@@ -1354,7 +1374,7 @@ function handleAlgorithmChange() {
     updateAdjacencyMatrix();
     
     const checkboxGroup = document.getElementById('checkboxGroup1');
-    if (selectedAlgorithm === 'Asignacion' || selectedAlgorithm === 'noroeste') {
+    if (selectedAlgorithm === 'Asignacion' ) {
         checkboxGroup.classList.remove('hidden');
     } else {
         checkboxGroup.classList.add('hidden');

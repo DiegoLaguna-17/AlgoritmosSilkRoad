@@ -1254,6 +1254,7 @@ help_btn.addEventListener('click', function() {
             break;
         case 'noroeste':
             filePath = 'helps/noroeste.pdf';
+            break;
         default:
             filePath = 'helps/grafos.pdf'
     }

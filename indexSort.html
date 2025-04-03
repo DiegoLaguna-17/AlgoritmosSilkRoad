@@ -18,6 +18,9 @@
             <div id="tituloGeneral">
                 <h2>Genera tu propio ordenamiento</h2>
                 <img src="imagenes/logo sort.jpg" alt="logo sort" class="logo-img">
+                <div class="btn_help">
+                    <button id="help-btn" >Help</button>
+                </div>
             </div>
             <div id="generar">
                 <!-- botones para manual o aleatorio -->
@@ -192,6 +195,11 @@
                 formularioManual.style.display = 'none';
             }
         });
+        document.getElementById("help-btn").addEventListener("click", function() {
+        let filePath = 'helps/sorts_help.pdf'; 
+        window.open(filePath, '_blank'); 
+        });
+
     </script>
 
 </body>

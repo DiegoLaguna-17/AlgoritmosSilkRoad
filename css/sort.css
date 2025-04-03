@@ -36,11 +36,14 @@ body {
     flex: 1;
 }
 
-.header {
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; 
+    gap: 15px;
     background-color: var(--dark-color);
     color: var(--accent-color);
     padding: 20px;
-    text-align: center;
     border-radius: 10px;
     margin-bottom: 30px;
     box-shadow: var(--shadow);
@@ -57,7 +60,6 @@ body {
     padding: 30px;
     box-shadow: var(--shadow);
 }
-
 .visualization-container {
     display: flex;
     flex-direction: column;

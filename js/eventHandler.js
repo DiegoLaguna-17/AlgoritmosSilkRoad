@@ -1252,8 +1252,10 @@ help_btn.addEventListener('click', function() {
         case 'asignacion':
             filePath = 'helps/asignacion.pdf';
             break;
-        default:
+        case 'grafos':
             filePath = 'helps/grafos.pdf';
+        default:
+            filePath = 'helps/noroeste.pdf'
     }
 
     window.open(filePath, '_blank'); // Abre el PDF en una nueva pestaña

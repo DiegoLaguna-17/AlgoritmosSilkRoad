@@ -1249,7 +1249,7 @@ help_btn.addEventListener('click', function() {
         case 'cpm':
             filePath = 'helps/johnson.pdf';
             break;
-        case 'asignacion':
+        case 'Asignacion':
             filePath = 'helps/asignacion.pdf';
             break;
         case 'noroeste':

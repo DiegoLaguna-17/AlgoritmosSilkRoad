@@ -222,13 +222,21 @@
             let startTime = performance.now();
             swapCount = 0;
 
+            let gapInput = prompt("Ingresa el gap inicial (ej: 5):");
+            let gap = parseInt(gapInput);
+
+            if (isNaN(gap) || gap <= 0) {
+                alert("¡Debes ingresar un número válido mayor que 0!");
+                return; // Detener si el input no es válido
+            }
+
             let n = array.length;
-            for (let gap = Math.floor(n / 2); gap > 0; gap = Math.floor(gap / 2)) {
+            while (gap > 0) {
                 for (let i = gap; i < n; i++) {
                     let temp = array[i];
                     let j;
                     for (j = i; j >= gap && array[j - gap] > temp; j -= gap) {
-                        playSound(array[j]*5, 100)
+                        playSound(array[j] * 5, 100);
                         svg.selectAll("rect")
                             .attr("fill", (d, idx) => (idx === j || idx === j - gap) ? "var(--active-bar-color)" : "var(--bar-color)");
                         await new Promise(resolve => setTimeout(resolve, 100));
@@ -237,13 +245,11 @@
                         await updateBars();
                     }
                     array[j] = temp;
-                    playSound(temp*5,100)
+                    playSound(temp * 5, 100);
                     await updateBars();
                 }
+                gap = Math.floor(gap / 2); // Reducir el gap según Shell original
             }
-
-            let endTime = performance.now();
-            statsDisplay.textContent = `Tiempo: ${((endTime - startTime)/1000).toFixed(2)} s | Intercambios: ${swapCount}`;
         }
 
         async function mergeSort() {

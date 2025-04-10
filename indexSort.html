@@ -27,6 +27,9 @@
                 <div id="botones">
                     <button id="aleatorio" class="btn-primary">Aleatorio</button>
                     <button id="manual" class="btn-primary">Manual</button>
+                    <button id="importar" class="btn-primary">Importar JSON</button>
+                    <!-- Input de archivo oculto -->
+                    <input type="file" id="jsonFileInput" accept=".json" style="display: none;">
                 </div>
                 <!-- campo para los formularios  -->
                 <div class="forms-container">
@@ -200,6 +203,41 @@
         window.open(filePath, '_blank'); 
         });
 
+// PARA IMPORTAR
+document.getElementById('importar').addEventListener('click', function() {
+            // Dispara el input de archivo oculto
+            document.getElementById('jsonFileInput').click();
+        });
+
+        document.getElementById('jsonFileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const jsonData = JSON.parse(e.target.result);
+                    
+                    // Validación estricta del array
+                    if (!Array.isArray(jsonData)) {
+                        throw new Error('El archivo debe contener un array');
+                    }
+                    
+                    if (!jsonData.every(item => typeof item === 'number')) {
+                        throw new Error('Todos los elementos deben ser números');
+                    }
+                    
+                    // Codificar y redirigir
+                    const encodedData = encodeURIComponent(JSON.stringify(jsonData));
+                    window.location.href = `sortAlgorithms.html?jsonData=${encodedData}`;
+                    
+                } catch (error) {
+                    alert(`Error: ${error.message}\n\nEl archivo debe contener un array de números. Ejemplo:\n[5, 3, 8, 1]`);
+                    e.target.value = ''; // Limpiar selección
+                }
+            };
+            reader.readAsText(file);
+        });
     </script>
 
 </body>

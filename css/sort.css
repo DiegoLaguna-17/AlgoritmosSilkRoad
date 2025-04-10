@@ -54,6 +54,20 @@ header {
     font-weight: 700;
 }
 
+.order-selector {
+    display: inline-block;
+    margin-left: 20px;
+}
+
+.order-selector select {
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    background-color: #D6FBF7;
+    cursor: pointer;
+}
+
 .main-content {
     background-color: var(--light-color);
     border-radius: 10px;

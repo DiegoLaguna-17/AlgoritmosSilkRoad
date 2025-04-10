@@ -12,6 +12,12 @@
     <div class="container">
         <header class="header">
             <h1>Visualizador de Algoritmos de Ordenamiento</h1>
+            <div class="order-selector"> <!-- PARA SABER SI DESCENDENTE O ASCENDENTE  -->
+                <select id="sortOrder">
+                    <option value="asc">Menor a Mayor (Ascendente)</option>
+                    <option value="desc">Mayor a Menor (Descendente)</option>
+                </select>
+            </div>
         </header>
 
         <main class="main-content">
@@ -23,6 +29,9 @@
                         <button onclick="insertionSort()" class="sort-btn">Insertion Sort</button>
                         <button onclick="shellSort()" class="sort-btn">Shell Sort</button>
                         <button onclick="mergeSort()" class="sort-btn">Merge Sort</button>
+                        <button onclick="exportArrayToJSON()" class="sort-btn">Exportar JSON</button>
+                        <input type="file" id="jsonImport" accept=".json" style="display: none;" onchange="importArrayFromJSON(event)">
+                        <button onclick="document.getElementById('jsonImport').click()" class="sort-btn">Importar JSON</button>
                     </div>
                     <div class="stats-display" id="stats">Tiempo: 0 ms | Intercambios: 0</div>
                 </div>
@@ -164,43 +173,54 @@
             });
         }
 
-        // FUNCIONES DE ORDENAMIENTO (se mantienen igual)
+        //-------------------------INICIO DE FUNCIONES DE ORDENAMIENTO ---------------------------------
+        // Obtener el orden en el que quiere ordenar
+        function getSortOrder() {
+            return document.getElementById('sortOrder').value;
+        }
+
+        //SELECTION SORT
         async function selectionSort() {
             let startTime = performance.now();
             swapCount = 0;
+            const order = getSortOrder();
 
             for (let i = 0; i < array.length; i++) {
-                let min = i;
+                let extreme = i; // índice del elemento extremo (min o max)
                 for (let j = i + 1; j < array.length; j++) {
                     svg.selectAll("rect")
                         .attr("fill", (d, idx) => (idx === i || idx === j) ? "var(--active-bar-color)" : "var(--bar-color)");
                     await new Promise(resolve => setTimeout(resolve, 100));
                     playSound(array[j] * 5, 100);
-                    if (array[j] < array[min]) {
-                        min = j;
+                    
+                    // Modificación para ambos órdenes
+                    if (order === 'asc' ? array[j] < array[extreme] : array[j] > array[extreme]) {
+                        extreme = j;
                     }
                 }
-                if (min !== i) {
-                    [array[i], array[min]] = [array[min], array[i]];
+                if (extreme !== i) {
+                    [array[i], array[extreme]] = [array[extreme], array[i]];
                     swapCount++;
                     playSound(array[i] * 5, 100);
                     await updateBars();
                 }
                 svg.selectAll("rect").attr("fill", "var(--bar-color)");
             }
-    
+            
             let endTime = performance.now();
             statsDisplay.textContent = `Tiempo: ${((endTime - startTime)/1000).toFixed(2)} s | Intercambios: ${swapCount}`;
         }
 
+        //INSERTION SORT
         async function insertionSort() {
             let startTime = performance.now();
             swapCount = 0;
+            const order = getSortOrder();
 
             for (let i = 1; i < array.length; i++) {
                 let key = array[i];
                 let j = i - 1;
-                while (j >= 0 && array[j] > key) {
+                while (j >= 0 && (order === 'asc' ? array[j] > key : array[j] < key)) {
                     playSound(array[j] * 5, 100);
                     svg.selectAll("rect")
                         .attr("fill", (d, idx) => (idx === j || idx === j + 1) ? "var(--active-bar-color)" : "var(--bar-color)");
@@ -218,16 +238,18 @@
             statsDisplay.textContent = `Tiempo: ${((endTime - startTime)/1000).toFixed(2)} s | Intercambios: ${swapCount}`;
         }
 
+        //SHELL SORT
         async function shellSort() {
             let startTime = performance.now();
             swapCount = 0;
+            const order = getSortOrder();
 
             let n = array.length;
             for (let gap = Math.floor(n / 2); gap > 0; gap = Math.floor(gap / 2)) {
                 for (let i = gap; i < n; i++) {
                     let temp = array[i];
                     let j;
-                    for (j = i; j >= gap && array[j - gap] > temp; j -= gap) {
+                    for (j = i; j >= gap && (order === 'asc' ? array[j - gap] > temp : array[j - gap] < temp); j -= gap) {
                         playSound(array[j]*5, 100)
                         svg.selectAll("rect")
                             .attr("fill", (d, idx) => (idx === j || idx === j - gap) ? "var(--active-bar-color)" : "var(--bar-color)");
@@ -246,9 +268,11 @@
             statsDisplay.textContent = `Tiempo: ${((endTime - startTime)/1000).toFixed(2)} s | Intercambios: ${swapCount}`;
         }
 
+        //MERGE SORT
         async function mergeSort() {
             let startTime = performance.now();
             swapCount = 0;
+            const order = getSortOrder();
 
             async function merge(arr, l, m, r) {
                 let n1 = m - l + 1;
@@ -262,7 +286,7 @@
                 let i = 0, j = 0, k = l;
                 while (i < n1 && j < n2) {
                     playSound(arr[k] * 5, 80);
-                    if (L[i] <= R[j]) {
+                    if ((order === 'asc' ? L[i] <= R[j] : L[i] >= R[j])) {
                         arr[k] = L[i];
                         i++;
                     } else {
@@ -306,7 +330,9 @@
             statsDisplay.textContent = `Tiempo: ${((endTime - startTime)/1000).toFixed(2)} s | Intercambios: ${swapCount}`;
         }
 
-        function playSound(frequency = 1000, duration = 500, volume = 0.3) {
+        //-------------------------FIN DE FUNCIONES DE ORDENAMIENTO ---------------------------------
+
+    function playSound(frequency = 1000, duration = 500, volume = 0.3) {
     const context = new (window.AudioContext || window.webkitAudioContext)();
     const oscillator = context.createOscillator();
     const gainNode = context.createGain();
@@ -331,17 +357,78 @@
     }, duration);
 }
 
-        // Al cargar la página, verificar si hay parámetros para generar datos
+        // AL CARGAR LA PAGINA VERIFICAR SI HA RECIBIDO DATOS QUE MOSTRAR 
         window.onload = function() {
-            const params = getQueryParams();
-            if (params.elementos) {
-                generateManualFromForm();
-            } else if (params.minimo && params.maximo && params.cantidad) {
-                generateRandomFromForm();
-            } else {
-                generateBars();
+        const params = new URLSearchParams(window.location.search);
+        
+        // VERIFICA SI HAY ARCHIVO JSON RECIBIDOS
+        if (params.has('jsonData')) {
+            try {
+                const jsonData = params.get('jsonData');
+                array = JSON.parse(decodeURIComponent(jsonData));
+                swapCount = 0;
+                updateChart();
+                return;
+            } catch (error) {
+                console.error('Error al parsear JSON:', error);
+                // Continuar con otros métodos si falla
             }
-        };
+        }
+        
+        // VEMOS SI RECIBIMOS PARAMETROS MANUALES O ALEATORIOS 
+        if (params.has('elementos')) {
+            generateManualFromForm();
+        } else if (params.has('minimo') && params.has('maximo') && params.has('cantidad')) {
+            generateRandomFromForm();
+        } else {
+            generateBars();
+        }
+    };
+        //FUNCION PARA EXPORTAR 
+        function exportArrayToJSON() {
+            // Pedir nombre al usuario
+            const fileName = prompt("Nombre del archivo (sin extensión):", "arreglo");
+            
+            if (!fileName) return; // Si el usuario cancela
+            
+            // Crear JSON solo con el array
+            const json = JSON.stringify(array);
+            
+            // Descargar archivo
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${fileName}.json`; // Usar el nombre proporcionado
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        //FUNCION PARA IMPORTAR ARRAY
+        function importArrayFromJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedArray = JSON.parse(e.target.result);
+                    if (Array.isArray(importedArray)) {
+                        array = importedArray;
+                        swapCount = 0; //reinico contador de movimientos
+                        updateChart(); //actualizo los gráficos
+                        alert(`Array importado: ${array.length} elementos`);
+                    } else {
+                        throw new Error("El archivo no contiene un array válido");
+                    }
+                } catch (error) {
+                    alert("Error: " + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
     </script>
     
 </body>

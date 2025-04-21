@@ -32,6 +32,7 @@
                         <button onclick="exportArrayToJSON()" class="sort-btn">Exportar JSON</button>
                         <input type="file" id="jsonImport" accept=".json" style="display: none;" onchange="importArrayFromJSON(event)">
                         <button onclick="document.getElementById('jsonImport').click()" class="sort-btn">Importar JSON</button>
+                        <button onclick="limpiar()"class="sort-btn">Limpiar lista</button>
                     </div>
                     <div class="stats-display" id="stats">Tiempo: 0 ms | Intercambios: 0</div>
                 </div>
@@ -49,7 +50,11 @@
         const maxBarHeight = svgHeight * 0.9;
         const containerWidthPercentage = 0.95;
 
-
+        function limpiar(){
+            array=[]
+            updateChart()
+            updateBars()
+        }
         // Función para obtener parámetros de la URL
         function getQueryParams() {
             const params = new URLSearchParams(window.location.search);

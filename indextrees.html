@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Árbol Binario Ajustable</title>
+  <style>
+    :root {
+    --primary-color: #00969C;
+    --secondary-color: #00E3C6;
+    --accent-color: #D6FBF7;
+    --dark-color: #314942;
+    --light-color: #FFFFFF;
+    --shadow: 0 4px 20px rgba(0, 227, 198, 0.3);
+    --glow: 0 0 15px rgba(0, 227, 198, 0.5);
+    --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Rajdhani', 'Orbitron', sans-serif;
+        text-align: center;
+        background-color: var(--dark-color);
+        color: var(--light-color);
+        overflow-x: hidden;
+    }
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        height: 100px;
+        background: linear-gradient(180deg, var(--dark-color) 0%, rgba(49, 73, 66, 0.9) 100%);
+        padding: 0 30px;
+        border-bottom: 2px solid var(--secondary-color);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .container {
+        display: flex;
+        justify-content: center;
+        padding-top: 4px;
+        width:100%;
+        height: 550px;
+        background: linear-gradient(135deg, var(--primary-color) 0%, #005a5f 100%);
+        min-height: calc(100vh - 100px);
+        position: relative;
+    }
+    .container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 10% 20%, rgba(214, 251, 247, 0.05) 0%, transparent 30%),
+            radial-gradient(circle at 90% 80%, rgba(0, 227, 198, 0.07) 0%, transparent 40%);
+        pointer-events: none;
+    }
+    .title {
+        position: relative;
+        animation: fadeIn 1s ease-out;
+        flex-grow: 1;
+        margin-left: 300px;
+        text-align: center;
+    }
+    .title h1 {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 40px;
+        letter-spacing: 3px;
+        color: var(--light-color);
+        text-transform: uppercase;
+        text-shadow: 0 0 10px rgba(0, 227, 198, 0.7);
+        position: relative;
+    }
+    .title h1::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 3px;
+        background: var(--secondary-color);
+        box-shadow: var(--glow);
+    }
+
+    .help {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+    .i-e{
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 15px;
+    }
+    .vaciar {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+    }
+    #treeCanvas {
+        width: 80%;
+        height: 520px;
+        border: 2px solid var(--secondary-color);
+        border-radius: 10px;
+        background: var(--light-color);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(5px);
+    }
+
+    canvas {
+        display: block;
+        margin: 30px auto;
+    }
+
+    .buttons-controller {
+        width: 100%;
+        height: auto;
+        display: flex;
+        justify-content: center;
+        gap: 400px;
+        padding-top: 30px;
+        margin-bottom: 50px;
+    }
+
+    #btn-Help {
+         border: 2px solid var(--secondary-color);
+        background-color: transparent;
+        color: var(--light-color);
+        border-radius: 30px;
+        width: 120px;
+        height: 50px;
+        transition: var(--transition);
+        cursor: pointer;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    #btn-Import {
+         border: 2px solid var(--secondary-color);
+        background-color: transparent;
+        color: var(--light-color);
+        border-radius: 30px;
+        width: 120px;
+        height: 50px;
+        transition: var(--transition);
+        cursor: pointer;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    #btn-Export {
+         border: 2px solid var(--secondary-color);
+        background-color: transparent;
+        color: var(--light-color);
+        border-radius: 30px;
+        width: 120px;
+        height: 50px;
+        transition: var(--transition);
+        cursor: pointer;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    #btn-Vaciar {
+        border: 2px solid var(--secondary-color);
+        background-color: transparent;
+        color: var(--light-color);
+        border-radius: 30px;
+        width: 120px;
+        height: 50px;
+        transition: var(--transition);
+        cursor: pointer;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    /*para el boton del help*/
+    #btn-Help::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(0, 227, 198, 0.2), transparent);
+        transition: var(--transition);
+        z-index: -1;
+    }
+
+    #btn-Help:hover {
+        background-color: rgba(0, 227, 198, 0.1);
+        color: var(--secondary-color);
+        box-shadow: var(--glow);
+        transform: translateY(-5px);
+        letter-spacing: 3px;
+    }
+
+    #btn-Help:hover::before {
+        animation: shine 1.5s infinite;
+    }
+    /*para el boton de los import y export*/
+    #btn-Import::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(0, 227, 198, 0.2), transparent);
+        transition: var(--transition);
+        z-index: -1;
+    }
+
+    #btn-Import:hover {
+        background-color: rgba(0, 227, 198, 0.1);
+        color: var(--secondary-color);
+        box-shadow: var(--glow);
+        transform: translateY(-5px);
+        letter-spacing: 3px;
+    }
+
+    #btn-Import:hover::before {
+        animation: shine 1.5s infinite;
+    }
+    #btn-Export::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(0, 227, 198, 0.2), transparent);
+        transition: var(--transition);
+        z-index: -1;
+    }
+
+    #btn-Export:hover {
+        background-color: rgba(0, 227, 198, 0.1);
+        color: var(--secondary-color);
+        box-shadow: var(--glow);
+        transform: translateY(-5px);
+        letter-spacing: 3px;
+    }
+
+    #btn-Export:hover::before {
+        animation: shine 1.5s infinite;
+    }
+    /* Estilo para el botón Vaciar */
+    #btn-Vaciar::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(0, 227, 198, 0.2), transparent);
+        transition: var(--transition);
+        z-index: -1;
+    }
+
+    #btn-Vaciar:hover {
+        background-color: rgba(0, 227, 198, 0.1);
+        color: var(--secondary-color);
+        box-shadow: var(--glow);
+        transform: translateY(-5px);
+        letter-spacing: 3px;
+    }
+
+    #btn-Vaciar:hover::before {
+        animation: shine 1.5s infinite;
+    }
+    @keyframes shine {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+    }
+
+    @keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    }
+
+    @media (max-width: 1200px) {
+    .title {
+        padding-left: 0;
+    }
+    
+    #treeCanvas {
+        width: 90%;
+        height: 500px;
+    }
+    
+    .buttons-controller {
+        gap: 200px;
+    }
+    }
+    .btn-Draw {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+    }
+
+    .btn-Draw button {
+    border: 2px solid var(--secondary-color);
+    background-color: transparent;
+    color: var(--light-color);
+    border-radius: 30px;
+    width: 150px;
+    height: 50px;
+    transition: var(--transition);
+    cursor: pointer;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    margin-bottom: 10px;
+    }
+
+    .btn-Draw button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 227, 198, 0.2), transparent);
+    transition: var(--transition);
+    z-index: -1;
+    }
+
+    .btn-Draw button:hover {
+    background-color: rgba(0, 227, 198, 0.1);
+    color: var(--secondary-color);
+    box-shadow: var(--glow);
+    transform: translateY(-5px);
+    letter-spacing: 3px;
+    }
+
+    .btn-Draw button:hover::before {
+    animation: shine 1.5s infinite;
+    }
+
+    #inputContainer {
+    background: rgba(49, 73, 66, 0.6);
+    padding: 15px;
+    border-radius: 15px;
+    border: 1px solid var(--secondary-color);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.5s ease-out;
+    }
+
+    #inputNumeros {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--secondary-color);
+    border-radius: 25px;
+    height: 40px;
+    width: 250px;
+    color: var(--light-color);
+    padding: 0 15px;
+    margin-right: 10px;
+    font-family: 'Rajdhani', sans-serif;
+    outline: none;
+    transition: var(--transition);
+    }
+
+    #inputNumeros:focus {
+    box-shadow: 0 0 10px rgba(0, 227, 198, 0.5);
+    background: rgba(255, 255, 255, 0.15);
+    }
+
+    #inputNumeros::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+    }
+    .ing-Arboles {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+    }
+
+    .ing-Arboles button {
+    border: 2px solid var(--secondary-color);
+    background-color: transparent;
+    color: var(--light-color);
+    border-radius: 30px;
+    width: 220px;
+    height: 50px;
+    transition: var(--transition);
+    cursor: pointer;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    margin-bottom: 10px;
+    }
+
+    .ing-Arboles button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 227, 198, 0.2), transparent);
+    transition: var(--transition);
+    z-index: -1;
+    }
+
+    .ing-Arboles button:hover {
+    background-color: rgba(0, 227, 198, 0.1);
+    color: var(--secondary-color);
+    box-shadow: var(--glow);
+    transform: translateY(-5px);
+    letter-spacing: 3px;
+    }
+
+    .ing-Arboles button:hover::before {
+    animation: shine 1.5s infinite;
+    }
+
+    #opcionesOrden {
+    background: rgba(49, 73, 66, 0.6);
+    padding: 15px 25px;
+    border-radius: 15px;
+    border: 1px solid var(--secondary-color);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.5s ease-out;
+    text-align: left;
+    }
+
+    #opcionesOrden label {
+    display: flex;
+    align-items: center;
+    color: var(--light-color);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.1rem;
+    margin: 10px 0;
+    cursor: pointer;
+    transition: var(--transition);
+    }
+
+    #opcionesOrden label:hover {
+    color: var(--secondary-color);
+    transform: translateX(5px);
+    }
+
+    #opcionesOrden input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--secondary-color);
+    border-radius: 5px;
+    margin-right: 10px;
+    position: relative;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.2);
+    transition: var(--transition);
+    }
+
+    #opcionesOrden input[type="checkbox"]:checked {
+    background-color: var(--secondary-color);
+    box-shadow: 0 0 10px rgba(0, 227, 198, 0.7);
+    }
+
+    #opcionesOrden input[type="checkbox"]:checked::before {
+    content: "✓";
+    position: absolute;
+    color: var(--dark-color);
+    font-size: 16px;
+    font-weight: bold;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    }
+
+    #inputsOrden {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    animation: fadeIn 0.5s ease-out;
+    width: 100%;
+    max-width: 300px;
+    }
+
+    #inputsOrden input[type="text"] {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--secondary-color);
+    border-radius: 25px;
+    height: 40px;
+    width: 100%;
+    color: var(--light-color);
+    padding: 0 15px;
+    font-family: 'Rajdhani', sans-serif;
+    outline: none;
+    transition: var(--transition);
+    }
+
+    #inputsOrden input[type="text"]:focus {
+    box-shadow: 0 0 10px rgba(0, 227, 198, 0.5);
+    background: rgba(255, 255, 255, 0.15);
+    }
+
+    #inputsOrden input[type="text"]::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+    }
+
+    #inordenInput, #preordenInput, #postordenInput {
+    width: 100%;
+    animation: fadeIn 0.5s ease-out;
+    }
+    /* El fondo del modal */
+    #modalMostrarRecorrido {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 1000;
+      display: none;
+      margin: 0; /* elimina cualquier margen vertical/centrado */
+    }
+    #modalResultado {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 1000;
+      display: none;
+      margin: 0; /* elimina cualquier margen vertical/centrado */
+    }
+.modal-contenido {
+  background-color: black;
+  padding: 20px;
+  border-radius: 10px;
+  width: 300px;
+  color: white;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  margin: 20px; /* espacio desde el borde inferior e izquierdo */
+}
+/* Botón de cerrar */
+.cerrar {
+  float: right;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+  </style>
+</head>
+<body>
+    <div class="header">
+      <div class="vaciar">
+        <button id="btn-Vaciar">Vaciar</button>
+      </div>
+        <div class="title">
+            <h1>Árboles</h1>
+        </div>
+        <div class="i-e">
+          <button id="btn-Import">Importar</button>
+          <button id="btn-Export">Exportar</button>
+          <button id="btn-Help">Help</button>
+        </div>
+    </div>
+    <div class="container">
+        <canvas id="treeCanvas" width="700" height="500"></canvas>
+    </div>
+  <div class="buttons-controller">
+    <div class="btn-Draw">
+        <button onclick="mostrarInput()">Dibujar Árbol</button>
+        <div id="inputContainer" style="display: none; margin-top: 10px;">
+          <input type="text" id="inputNumeros" placeholder="Ej: 50,30,70,20,40,...">
+          <button onclick="dibujarArbol()">Generar</button>
+        </div>
+    </div>
+    <div class="ing-Arboles">
+        <button onclick="toggleOpciones()">Ingrese el ordenamiento</button>
+        <div id="opcionesOrden" style="display: none; margin-top: 10px;">
+          <label><input type="checkbox" value="inorden" onchange="verificarSeleccion()"> InOrden</label><br>
+          <label><input type="checkbox" value="preorden" onchange="verificarSeleccion()"> PreOrden</label><br>
+          <label><input type="checkbox" value="postorden" onchange="verificarSeleccion()"> PostOrden</label>
+        </div>
+        <div id="inputsOrden" style="display: none; margin-top: 10px; gap:30px;">
+          <div id="inordenInput" style="display: none;">
+            <input type="text" placeholder="Ingrese InOrden" id="inordenTxt">
+          </div>
+          <div id="preordenInput" style="display: none;">
+            <input type="text" placeholder="Ingrese PreOrden" id="preordenTxt">
+          </div>
+          <div id="postordenInput" style="display: none;">
+            <input type="text" placeholder="Ingrese PostOrden" id="postordenTxt">
+          </div>
+          <button onclick="reconstruirYMostrar()">Generar tercer recorrido</button>
+        </div>
+      </div>
+      
+  </div>
+  <div id="modalResultado" class="modal">
+    <div class="modal-contenido">
+      <span class="cerrar" onclick="cerrarModal()">&times;</span>
+      <h2>Resultado del recorrido</h2>
+      <p id="resultadoTexto"></p>
+    </div>
+  </div>
+  <div id="modalMostrarRecorrido" class="modal">
+    <div class="modal-contenido">
+      <span class="cerrar" onclick="cerrarModal2()">&times;</span>
+      <h2>Resultado del recorrido</h2>
+      <p id="resultadoInOrder"></p>
+      <p id="resultadoPostOrder"></p>
+      <p id="resultadoPreOrder"></p>   
+    </div>
+  </div>
+  <script src="/js/tree.js"></script>
+</body>
+</html>

@@ -1295,7 +1295,8 @@ solve_btn.addEventListener('click', function() {
         }
     } else if (selectedAlgorithm === 'kruskal') {
         try {
-            const results = kruskalAlgorithm();
+            const isMaximization = document.querySelector('input[name="kruskalMode"]:checked').value === 'max';
+            const results = kruskalAlgorithm(isMaximization);
             visualizeKruskalResults(results);
         } catch (error) {
             alert("Error in Kruskal algorithm: " + error.message);
@@ -1402,15 +1403,22 @@ function handleAlgorithmChange() {
         }
     });
     
-    const checkboxGroup = document.getElementById('checkboxGroup1');
+    const checkboxGroup1 = document.getElementById('checkboxGroup1');
+    const checkboxGroupKruskal = document.getElementById('checkboxGroupKruskal');
+    
     if (selectedAlgorithm === 'Asignacion') {
-        checkboxGroup.classList.remove('hidden');
+        checkboxGroup1.classList.remove('hidden');
+        checkboxGroupKruskal.classList.add('hidden');
+    } else if (selectedAlgorithm === 'kruskal') {
+        checkboxGroup1.classList.add('hidden');
+        checkboxGroupKruskal.classList.remove('hidden');
     } else {
-        checkboxGroup.classList.add('hidden');
+        checkboxGroup1.classList.add('hidden');
+        checkboxGroupKruskal.classList.add('hidden');
     }
 }
 
-function kruskalAlgorithm() {
+function kruskalAlgorithm(isMaximization) {
     const nodeIds = nodes.getIds().sort((a, b) => a - b);
     const edgesList = edges.get();
     
@@ -1435,8 +1443,8 @@ function kruskalAlgorithm() {
         }
     });
     
-    // Sort edges by weight
-    undirectedEdges.sort((a, b) => a.weight - b.weight);
+    // Sort edges by weight (ascending for minimization, descending for maximization)
+    undirectedEdges.sort((a, b) => isMaximization ? b.weight - a.weight : a.weight - b.weight);
     
     // Initialize Union-Find (Disjoint Set Union)
     const parent = {};
@@ -1490,6 +1498,7 @@ function kruskalAlgorithm() {
 
 function visualizeKruskalResults(results) {
     const { mstEdges, totalWeight } = results;
+    const isMaximization = document.querySelector('input[name="kruskalMode"]:checked').value === 'max';
     
     // Reset all edges to default color
     edges.get().forEach(edge => {
@@ -1514,9 +1523,9 @@ function visualizeKruskalResults(results) {
     const resultsDiv = document.getElementById('criticalPathNodes');
     
     resultsDiv.innerHTML = `
-        <p style="color:#33FF80;">Algoritmo de Kruskal</p>
-        <p>Peso Total: ${totalWeight}</p>
-        <p>Número de arcos: ${mstEdges.length}</p>
+        <p style="color:#33FF80;">Algoritmo de Kruskal (${isMaximization ? 'Maximización' : 'Minimización'})</p>
+        <p>⚖️Peso Total: ${totalWeight}</p>
+        <p>#️⃣Número de arcos: ${mstEdges.length}</p>
     `;
     
     modal.style.display = 'block';

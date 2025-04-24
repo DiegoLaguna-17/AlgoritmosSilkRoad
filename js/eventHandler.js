@@ -295,7 +295,7 @@ addLoopBtn.addEventListener('click', function() {
                 from: selectedNodeId,
                 to: selectedNodeId,
                 label: '0',
-                arrows: isDirectedGraph ? 'to' : { enabled: false } // Modified this line
+                arrows: isDirectedGraph ? 'to' : { enabled: false } 
             });
             updateAdjacencyMatrix();
         } else {
@@ -398,7 +398,7 @@ document.getElementById('archivo').addEventListener('change', function(e) {
                 from: edge.from,
                 to: edge.to,
                 label: edge.label || "0",
-                arrows: isDirectedGraph ? (edge.arrows || 'to') : { enabled: false } // Modified this line
+                arrows: isDirectedGraph ? (edge.arrows || 'to') : { enabled: false } 
             })));
             updateAdjacencyMatrix();
 
@@ -516,10 +516,8 @@ function visualizeCriticalPath(results) {
     const criticalNodes = new Set();
     const nodeOrder = [];
     
-    // Get all edges in the critical path
     const criticalEdges = edges.get(criticalPath);
     
-    // Find the starting node (node with no incoming critical edges)
     let currentNode = null;
     for (const edge of criticalEdges) {
         const isStartNode = !criticalEdges.some(e => e.to === edge.from);
@@ -529,12 +527,10 @@ function visualizeCriticalPath(results) {
         }
     }
     
-    // If we didn't find a start node, just pick the first one
     if (!currentNode && criticalEdges.length > 0) {
         currentNode = criticalEdges[0].from;
     }
     
-    // Reconstruct the path by following the edges
     const pathNodes = [];
     if (currentNode) {
         pathNodes.push(currentNode);
@@ -550,7 +546,6 @@ function visualizeCriticalPath(results) {
         }
     }
     
-    // Color nodes and edges
     nodes.get().forEach(node => {
         const isCritical = criticalNodes.has(node.id);
         nodes.update({
@@ -577,11 +572,9 @@ function visualizeCriticalPath(results) {
         });
     });
     
-    // Show critical path in modal
     const modal = document.getElementById('criticalPathModal');
     const pathDiv = document.getElementById('criticalPathNodes');
     
-    // Format the path as "Node 1 -> Node 2 -> ..."
     const pathText = pathNodes.map(id => {
         const node = nodes.get(id);
         return node.label ? node.label.split('\n')[0] : `Node ${id}`;
@@ -590,15 +583,10 @@ function visualizeCriticalPath(results) {
     pathDiv.textContent = pathText;
     modal.style.display = 'block';
     
-    // Close modal handler
     document.querySelector('.close-critical-path-modal').onclick = function() {
         modal.style.display = 'none';
     };
 }
-
-
-
-
 
 function hungarianAlgorithm(isMaximization) {
     const nodeIds = nodes.getIds().sort((a, b) => a - b);
@@ -608,12 +596,10 @@ function hungarianAlgorithm(isMaximization) {
         throw new Error("No hay nodos en el grafo");
     }
 
-    // Separate origins (first half) and destinations (second half)
     const half = Math.ceil(nodeIds.length / 2);
     const origins = nodeIds.slice(0, half);
     const destinations = nodeIds.slice(half);
     
-    // Create cost matrix with destinations as rows and origins as columns
     const costMatrix = destinations.map(toId => {
         const toIndex = nodeIds.indexOf(toId);
         return origins.map(fromId => {
@@ -625,7 +611,6 @@ function hungarianAlgorithm(isMaximization) {
     
     console.log("Matriz de costos original:", costMatrix);
 
-    // Make the matrix square by adding dummy rows/columns with zero costs
     const maxSize = Math.max(origins.length, destinations.length);
     const paddedMatrix = [];
     
@@ -635,13 +620,12 @@ function hungarianAlgorithm(isMaximization) {
             if (i < costMatrix.length && j < costMatrix[0].length) {
                 row.push(costMatrix[i][j]);
             } else {
-                row.push(0); // Dummy costs
+                row.push(0);
             }
         }
         paddedMatrix.push(row);
     }
 
-    // Step 1: Subtract row minima
     for (let i = 0; i < paddedMatrix.length; i++) {
         const min = Math.min(...paddedMatrix[i]);
         for (let j = 0; j < paddedMatrix[i].length; j++) {
@@ -649,7 +633,6 @@ function hungarianAlgorithm(isMaximization) {
         }
     }
 
-    // Step 2: Subtract column minima
     for (let j = 0; j < paddedMatrix[0].length; j++) {
         let min = Infinity;
         for (let i = 0; i < paddedMatrix.length; i++) {
@@ -662,10 +645,8 @@ function hungarianAlgorithm(isMaximization) {
         }
     }
 
-    // Find optimal assignment using a proper Hungarian algorithm implementation
     const assignment = hungarianAssignment(paddedMatrix);
 
-    // Prepare results with proper costs
     const assignments = [];
     let totalCost = 0;
 
@@ -763,138 +744,9 @@ function hungarianAssignment(costMatrix) {
     return assignment;
 }
 
-
-
-/*
-function hungarianAlgorithm(isMaximization) {
-    const nodeIds = nodes.getIds().sort((a, b) => a - b);
-    const matrix = graph.getAdjacencyMatrix();
-    
-    if (nodeIds.length === 0) {
-        throw new Error("No hay nodos en el grafo");
-    }
-
-    // Separate origins (first half) and destinations (second half)
-    const half = Math.ceil(nodeIds.length / 2);
-    const origins = nodeIds.slice(0, half);
-    const destinations = nodeIds.slice(half);
-    
-    // Create cost matrix with destinations as rows and origins as columns
-    console.log(matrix);
-    const costMatrix = destinations.map(toId => {
-        const toIndex = nodeIds.indexOf(toId);
-        return origins.map(fromId => {
-            const fromIndex = nodeIds.indexOf(fromId);
-            const cost = parseInt(matrix[fromIndex][toIndex]) || 0;
-            return isMaximization ? -cost : cost; // Handle maximization by negating costs
-        });
-    });
-    
-    
-    console.log(costMatrix);
-
-    // Pad matrix to make it square if needed
-    const maxSize = Math.max(origins.length, destinations.length);
-    while (costMatrix.length < maxSize) {
-        costMatrix.push(new Array(origins.length).fill(0));
-    }
-    costMatrix.forEach(row => {
-        while (row.length < origins.length) {
-            row.push(0);
-        }
-    });
-
-    // Step 1: Subtract row minima
-    costMatrix.forEach(row => {
-        const min = Math.min(...row);
-        row.forEach((val, j) => {
-            row[j] = val - min;
-        });
-    });
-
-    // Step 2: Subtract column minima
-    for (let j = 0; j < origins.length; j++) {
-        const column = costMatrix.map(row => row[j]);
-        const min = Math.min(...column);
-        costMatrix.forEach(row => {
-            row[j] -= min;
-        });
-    }
-
-    // Find optimal assignment (now assigning destinations to origins)
-    const assignment = findOptimalAssignment(costMatrix);
-
-    // Prepare results with proper costs
-    const assignments = [];
-    let totalCost = 0;
-
-    for (let destIndex = 0; destIndex < Math.min(destinations.length, origins.length); destIndex++) {
-        const originIndex = assignment[destIndex];
-        if (originIndex === undefined || originIndex >= origins.length) continue;
-
-        const fromId = origins[originIndex];
-        const toId = destinations[destIndex];
-        const fromNode = nodes.get(fromId);
-        const toNode = nodes.get(toId);
-        
-        // Get original cost from adjacency matrix
-        const fromIndex = nodeIds.indexOf(fromId);
-        const toIndex = nodeIds.indexOf(toId);
-        const originalCost = parseInt(matrix[fromIndex][toIndex]) || 0;
-
-        assignments.push({
-            from: fromId,
-            fromLabel: fromNode.label,
-            to: toId,
-            toLabel: toNode.label,
-            cost: originalCost
-        });
-
-        totalCost += originalCost;
-    }
-
-    return { assignments, totalCost };
-}
-
-function findOptimalAssignment(matrix) {
-    const numRows = matrix.length;
-    const numCols = matrix[0]?.length || 0;
-    const assignment = new Array(numRows).fill(-1);
-    const rowCovered = new Array(numRows).fill(false);
-    const colCovered = new Array(numCols).fill(false);
-    
-    // Find initial assignments
-    for (let i = 0; i < numRows; i++) {
-        for (let j = 0; j < numCols; j++) {
-            if (matrix[i][j] === 0 && !rowCovered[i] && !colCovered[j]) {
-                assignment[i] = j;
-                rowCovered[i] = true;
-                colCovered[j] = true;
-                break;
-            }
-        }
-    }
-    
-    // Handle unassigned rows
-    for (let i = 0; i < numRows; i++) {
-        if (assignment[i] === -1) {
-            for (let j = 0; j < numCols; j++) {
-                if (!colCovered[j]) {
-                    assignment[i] = j;
-                    colCovered[j] = true;
-                    break;
-                }
-            }
-        }
-    }
-    
-    return assignment;
-}
-*/
 function visualizeAssignments(results) {
     const { assignments, totalCost } = results;
     
-    // Reset all node colors
     nodes.get().forEach(node => {
         nodes.update({
             id: node.id,
@@ -902,7 +754,6 @@ function visualizeAssignments(results) {
         });
     });
 
-    // Color assigned pairs
     assignments.forEach((pair, index) => {
         const color = colorPalette[index % colorPalette.length];
         nodes.update([
@@ -911,7 +762,6 @@ function visualizeAssignments(results) {
         ]);
     });
 
-    // Show results in modal
     const modal = document.getElementById('assignmentModal');
     const resultsDiv = document.getElementById('assignmentResults');
     
@@ -949,7 +799,6 @@ const northwestModalHTML = `
 `;
 document.body.insertAdjacentHTML('beforeend', northwestModalHTML);
 
-// Northwest Corner Algorithm Implementation
 function northwestCornerAlgorithm(isMaximization) {
     const nodeIds = nodes.getIds().sort((a, b) => a - b);
     const matrix = graph.getAdjacencyMatrix();
@@ -958,7 +807,6 @@ function northwestCornerAlgorithm(isMaximization) {
         throw new Error("No hay nodos en el grafo");
     }
 
-    // Identify supply (origin) and demand (destination) nodes based on edge connections
     const origins = new Set();
     const destinations = new Set();
     
@@ -967,37 +815,30 @@ function northwestCornerAlgorithm(isMaximization) {
         destinations.add(edge.to);
     });
 
-    // Convert to arrays
     let supplyNodes = Array.from(origins);
     let demandNodes = Array.from(destinations);
 
-    // Get supply and demand values from node attributes
     let originalSupplies = supplyNodes.map(id => parseInt(graph.getSupplyDemandValue(id)) || 0);
     let originalDemands = demandNodes.map(id => parseInt(graph.getSupplyDemandValue(id)) || 0);
 
-    // Make copies for the algorithm to modify
     let supplies = [...originalSupplies];
     let demands = [...originalDemands];
 
-    // Calculate totals
     const totalSupply = supplies.reduce((a, b) => a + b, 0);
     const totalDemand = demands.reduce((a, b) => a + b, 0);
 
-    // Wildcard completion mechanism
     let wildcardAdded = false;
     if (totalSupply !== totalDemand) {
         wildcardAdded = true;
         if (totalSupply > totalDemand) {
-            // Add wildcard demand node
+
             const wildcardValue = totalSupply - totalDemand;
             const wildcardId = Math.max(...nodeIds) + 1;
             
-            // Add wildcard node to demand nodes
             demandNodes.push(wildcardId);
             demands.push(wildcardValue);
             originalDemands.push(wildcardValue);
             
-            // Create edges from all supply nodes to wildcard node with weight 0
             supplyNodes.forEach(fromId => {
                 edges.add({
                     from: fromId,
@@ -1007,23 +848,20 @@ function northwestCornerAlgorithm(isMaximization) {
                 });
             });
             
-            // Add the wildcard node to the graph
             nodes.add({
                 id: wildcardId,
                 label: `Nodo ${wildcardId}\nd:${wildcardValue}`,
-                color: '#FFA500' // Orange color for wildcard node
+                color: '#FFA500'
             });
         } else {
-            // Add wildcard supply node
+
             const wildcardValue = totalDemand - totalSupply;
             const wildcardId = Math.max(...nodeIds) + 1;
             
-            // Add wildcard node to supply nodes
             supplyNodes.push(wildcardId);
             supplies.push(wildcardValue);
             originalSupplies.push(wildcardValue);
             
-            // Create edges from wildcard node to all demand nodes with weight 0
             demandNodes.forEach(toId => {
                 edges.add({
                     from: wildcardId,
@@ -1033,18 +871,15 @@ function northwestCornerAlgorithm(isMaximization) {
                 });
             });
             
-            // Add the wildcard node to the graph
             nodes.add({
                 id: wildcardId,
                 label: `Nodo ${wildcardId}\ns:${wildcardValue}`,
-                color: '#FFA500' // Orange color for wildcard node
+                color: '#FFA500'
             });
         }
-        // Update the adjacency matrix
         updateAdjacencyMatrix();
     }
 
-    // Create cost matrix with supply nodes as rows and demand nodes as columns
     const costMatrix = supplyNodes.map((fromId, i) => {
         const fromIndex = nodeIds.indexOf(fromId);
         return demandNodes.map((toId, j) => {
@@ -1055,20 +890,17 @@ function northwestCornerAlgorithm(isMaximization) {
         });
     });
 
-    // Initialize variables
     const allocations = Array(supplyNodes.length).fill().map(() => Array(demandNodes.length).fill(0));
     let totalCost = 0;
     let iterations = 0;
     let i = 0, j = 0;
 
-    // Northwest Corner algorithm
     while (i < supplyNodes.length && j < demandNodes.length) {
         iterations++;
         const supply = supplies[i];
         const demand = demands[j];
         
         if (supply <= 0 || demand <= 0) {
-            // Skip if no supply or demand left
             if (supply <= 0) i++;
             if (demand <= 0) j++;
             continue;
@@ -1077,14 +909,11 @@ function northwestCornerAlgorithm(isMaximization) {
         const allocation = Math.min(supply, demand);
         allocations[i][j] = allocation;
         
-        // Update supply and demand
         supplies[i] -= allocation;
         demands[j] -= allocation;
         
-        // Calculate cost
         totalCost += allocation * costMatrix[i][j];
         
-        // Move to next cell
         if (supplies[i] === 0) i++;
         if (demands[j] === 0) j++;
     }
@@ -1113,7 +942,6 @@ function visualizeNorthwestResults(results) {
         wildcardAdded
     } = results;
     
-    // Color all nodes to indicate algorithm was applied
     nodes.get().forEach(node => {
         const isSupply = supplyNodes.includes(node.id);
         const isDemand = demandNodes.includes(node.id);
@@ -1124,7 +952,6 @@ function visualizeNorthwestResults(results) {
         });
     });
 
-    // Color edges with allocations
     edges.get().forEach(edge => {
         const fromIndex = supplyNodes.indexOf(edge.from);
         const toIndex = demandNodes.indexOf(edge.to);
@@ -1132,18 +959,16 @@ function visualizeNorthwestResults(results) {
         if (fromIndex !== -1 && toIndex !== -1 && allocations[fromIndex][toIndex] > 0) {
             edges.update({
                 id: edge.id,
-                color: '#FFD700', // Gold color for allocated edges
+                color: '#FFD700',
                 width: 3,
                 label: `${edge.label} (${allocations[fromIndex][toIndex]})`
             });
         }
     });
 
-    // Show results in modal
     const modal = document.getElementById('northwestModal');
     const resultsDiv = document.getElementById('northwestResults');
     
-    // Create cost matrix (initial state, without allocations)
     const costMatrix = supplyNodes.map(fromId => {
         return demandNodes.map(toId => {
             const edge = edges.get().find(e => e.from === fromId && e.to === toId);
@@ -1151,23 +976,19 @@ function visualizeNorthwestResults(results) {
         });
     });
 
-    // Calculate totals
     const totalSupply = originalSupplies.reduce((a, b) => a + b, 0);
     const totalDemand = originalDemands.reduce((a, b) => a + b, 0);
     
-    // Create tables - one for costs and one for allocations
     let costTable = '<table border="1" style="width:100%; border-collapse: collapse; margin-top: 10px;">';
     costTable += '<caption style="margin-bottom: 5px; font-weight: bold;">Matriz de Costos Inicial</caption>';
     costTable += '<tr><th></th>';
     
-    // Add demand headers
     demandNodes.forEach(id => {
         const node = nodes.get(id);
         costTable += `<th>${node.label.split('\n')[0]}</th>`;
     });
     costTable += '<th>Oferta</th></tr>';
     
-    // Add rows with supply and costs
     supplyNodes.forEach((id, i) => {
         const node = nodes.get(id);
         costTable += `<tr><td>${node.label.split('\n')[0]}</td>`;
@@ -1176,33 +997,28 @@ function visualizeNorthwestResults(results) {
             costTable += `<td>${costMatrix[i][j]}</td>`;
         });
         
-        // Show supply
         costTable += `<td>${originalSupplies[i]}</td></tr>`;
     });
     
-    // Add demand totals row
     costTable += '<tr><td>Demanda</td>';
     demandNodes.forEach((_, j) => {
         costTable += `<td>${originalDemands[j]}</td>`;
     });
-    // Add sum in last cell
+
     costTable += `<td><strong>${totalSupply}</strong></td></tr>`;
     
     costTable += '</table>';
 
-    // Create allocations table
     let allocationTable = '<table border="1" style="width:100%; border-collapse: collapse; margin-top: 20px;">';
     allocationTable += '<caption style="margin-bottom: 5px; font-weight: bold;">Asignaciones</caption>';
     allocationTable += '<tr><th></th>';
     
-    // Add demand headers
     demandNodes.forEach(id => {
         const node = nodes.get(id);
         allocationTable += `<th>${node.label.split('\n')[0]}</th>`;
     });
     allocationTable += '<th>Oferta</th></tr>';
     
-    // Add rows with supply and allocations
     supplyNodes.forEach((id, i) => {
         const node = nodes.get(id);
         allocationTable += `<tr><td>${node.label.split('\n')[0]}</td>`;
@@ -1212,12 +1028,10 @@ function visualizeNorthwestResults(results) {
             allocationTable += `<td>${alloc > 0 ? alloc : '-'}</td>`;
         });
         
-        // Show remaining supply
         const remainingSupply = originalSupplies[i] - allocations[i].reduce((a, b) => a + b, 0);
         allocationTable += `<td>${remainingSupply}</td></tr>`;
     });
     
-    // Add demand totals row
     allocationTable += '<tr><td>Demanda</td>';
     demandNodes.forEach((_, j) => {
         const remainingDemand = originalDemands[j] - allocations.reduce((a, b) => a + b[j], 0);
@@ -1259,11 +1073,14 @@ help_btn.addEventListener('click', function() {
         case 'noroeste':
             filePath = 'helps/noroeste.pdf';
             break;
+        case 'kruskal':
+            filePath = 'helps/kruskal.pdf';
+            break;
         default:
             filePath = 'helps/grafos.pdf'
     }
 
-    window.open(filePath, '_blank'); // Abre el PDF en una nueva pestaña
+    window.open(filePath, '_blank'); 
 });
 
 
@@ -1387,14 +1204,11 @@ function handleAlgorithmChange() {
         'Kruskal'
     }`;
     
-    // Clear the graph when switching algorithms
     graph.clear();
     updateAdjacencyMatrix();
     
-    // Set graph type based on algorithm
     isDirectedGraph = selectedAlgorithm !== 'kruskal';
     
-    // Update edge arrows configuration
     network.setOptions({
         edges: {
             arrows: {
@@ -1426,9 +1240,8 @@ function kruskalAlgorithm(isMaximization) {
         throw new Error("No hay nodos en el grafo");
     }
     
-    // Convert edges to undirected format (remove directionality)
     const undirectedEdges = [];
-    const edgeMap = new Map(); // To avoid duplicates
+    const edgeMap = new Map();
     
     edgesList.forEach(edge => {
         const key = [edge.from, edge.to].sort().join('-');
@@ -1443,10 +1256,8 @@ function kruskalAlgorithm(isMaximization) {
         }
     });
     
-    // Sort edges by weight (ascending for minimization, descending for maximization)
     undirectedEdges.sort((a, b) => isMaximization ? b.weight - a.weight : a.weight - b.weight);
     
-    // Initialize Union-Find (Disjoint Set Union)
     const parent = {};
     nodeIds.forEach(id => {
         parent[id] = id;
@@ -1454,7 +1265,7 @@ function kruskalAlgorithm(isMaximization) {
     
     function find(u) {
         if (parent[u] !== u) {
-            parent[u] = find(parent[u]); // Path compression
+            parent[u] = find(parent[u]); 
         }
         return parent[u];
     }
@@ -1469,7 +1280,6 @@ function kruskalAlgorithm(isMaximization) {
         return false;
     }
     
-    // Kruskal's algorithm
     const mstEdges = [];
     let totalWeight = 0;
     
@@ -1478,18 +1288,17 @@ function kruskalAlgorithm(isMaximization) {
             mstEdges.push(edge.originalId);
             totalWeight += edge.weight;
             
-            // Stop when we have a spanning tree
+
             if (mstEdges.length === nodeIds.length - 1) {
                 break;
             }
         }
     }
     
-    // Check if we have a spanning tree (connected graph)
     if (mstEdges.length !== nodeIds.length - 1) {
         throw new Error("El grafo no es conexo, no se puede aplicar Kruskal");
     }
-    
+
     return {
         mstEdges,
         totalWeight
@@ -1500,7 +1309,6 @@ function visualizeKruskalResults(results) {
     const { mstEdges, totalWeight } = results;
     const isMaximization = document.querySelector('input[name="kruskalMode"]:checked').value === 'max';
     
-    // Reset all edges to default color
     edges.get().forEach(edge => {
         edges.update({
             id: edge.id,
@@ -1509,16 +1317,14 @@ function visualizeKruskalResults(results) {
         });
     });
     
-    // Highlight MST edges
     mstEdges.forEach(edgeId => {
         edges.update({
             id: edgeId,
-            color: '#33FF80', // Green color for MST edges
+            color: '#33FF80', 
             width: 4
         });
     });
     
-    // Show results in modal
     const modal = document.getElementById('criticalPathModal');
     const resultsDiv = document.getElementById('criticalPathNodes');
     
@@ -1558,7 +1364,6 @@ addValueBtn.addEventListener('click', function() {
         if (newValue !== null) {
             graph.setSupplyDemandValue(selectedNodeId, newValue);
             
-            // Update node label
             const node = nodes.get(selectedNodeId);
             const isSupply = edges.get().some(edge => edge.from === selectedNodeId);
             const prefix = isSupply ? 's:' : 'd:';

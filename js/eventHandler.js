@@ -5,6 +5,8 @@ const nodeContextMenu = document.getElementById('nodeContextMenu');
 const nodes = new vis.DataSet([]);
 const edges = new vis.DataSet([]);
 
+let isDirectedGraph = true;
+
 const options = {
     nodes: {
         shape: 'circle',
@@ -243,7 +245,7 @@ network.on('doubleClick', function(params) {
                         from: sourceNodeId,
                         to: destinationNodeId,
                         label: "0",
-                        arrows: 'to',
+                        arrows: isDirectedGraph ? 'to' : { enabled: false } // Modified this line
                     });
                     updateAdjacencyMatrix();
                 }
@@ -253,7 +255,7 @@ network.on('doubleClick', function(params) {
                         from: sourceNodeId,
                         to: destinationNodeId,
                         label: '0',
-                        arrows: 'to',
+                        arrows: isDirectedGraph ? 'to' : { enabled: false } // Modified this line
                     });
                     updateAdjacencyMatrix();
                 } else {
@@ -293,7 +295,7 @@ addLoopBtn.addEventListener('click', function() {
                 from: selectedNodeId,
                 to: selectedNodeId,
                 label: '0',
-                arrows: 'to'
+                arrows: isDirectedGraph ? 'to' : { enabled: false } // Modified this line
             });
             updateAdjacencyMatrix();
         } else {
@@ -393,8 +395,10 @@ document.getElementById('archivo').addEventListener('change', function(e) {
             graph.clear();
             nodes.add(graphData.nodes);
             edges.add(graphData.edges.map(edge => ({
-                ...edge,
-                label: edge.label || "0" 
+                from: edge.from,
+                to: edge.to,
+                label: edge.label || "0",
+                arrows: isDirectedGraph ? (edge.arrows || 'to') : { enabled: false } // Modified this line
             })));
             updateAdjacencyMatrix();
 
@@ -1289,6 +1293,13 @@ solve_btn.addEventListener('click', function() {
         } catch (error) {
             alert("Error in Northwest algorithm: " + error.message);
         }
+    } else if (selectedAlgorithm === 'kruskal') {
+        try {
+            const results = kruskalAlgorithm();
+            visualizeKruskalResults(results);
+        } catch (error) {
+            alert("Error in Kruskal algorithm: " + error.message);
+        }
     } else if (selectedAlgorithm === 'grafo') {
         nodes.get().forEach(node => {
             nodes.update({
@@ -1370,18 +1381,149 @@ function handleAlgorithmChange() {
     document.getElementById('currentAlgorithm').textContent = `Actual: ${
         selectedAlgorithm === 'grafo' ? 'Grafo' :
         selectedAlgorithm === 'cpm' ? 'Johnson' :
-        selectedAlgorithm === 'Asignacion' ? 'Asignación' : 'Noroeste'
+        selectedAlgorithm === 'Asignacion' ? 'Asignación' :
+        selectedAlgorithm === 'noroeste' ? 'Noroeste' :
+        'Kruskal'
     }`;
     
+    // Clear the graph when switching algorithms
     graph.clear();
     updateAdjacencyMatrix();
     
+    // Set graph type based on algorithm
+    isDirectedGraph = selectedAlgorithm !== 'kruskal';
+    
+    // Update edge arrows configuration
+    network.setOptions({
+        edges: {
+            arrows: {
+                to: { enabled: isDirectedGraph }
+            }
+        }
+    });
+    
     const checkboxGroup = document.getElementById('checkboxGroup1');
-    if (selectedAlgorithm === 'Asignacion' ) {
+    if (selectedAlgorithm === 'Asignacion') {
         checkboxGroup.classList.remove('hidden');
     } else {
         checkboxGroup.classList.add('hidden');
     }
+}
+
+function kruskalAlgorithm() {
+    const nodeIds = nodes.getIds().sort((a, b) => a - b);
+    const edgesList = edges.get();
+    
+    if (nodeIds.length === 0) {
+        throw new Error("No hay nodos en el grafo");
+    }
+    
+    // Convert edges to undirected format (remove directionality)
+    const undirectedEdges = [];
+    const edgeMap = new Map(); // To avoid duplicates
+    
+    edgesList.forEach(edge => {
+        const key = [edge.from, edge.to].sort().join('-');
+        if (!edgeMap.has(key)) {
+            undirectedEdges.push({
+                from: Math.min(edge.from, edge.to),
+                to: Math.max(edge.from, edge.to),
+                weight: parseInt(edge.label) || 0,
+                originalId: edge.id
+            });
+            edgeMap.set(key, true);
+        }
+    });
+    
+    // Sort edges by weight
+    undirectedEdges.sort((a, b) => a.weight - b.weight);
+    
+    // Initialize Union-Find (Disjoint Set Union)
+    const parent = {};
+    nodeIds.forEach(id => {
+        parent[id] = id;
+    });
+    
+    function find(u) {
+        if (parent[u] !== u) {
+            parent[u] = find(parent[u]); // Path compression
+        }
+        return parent[u];
+    }
+    
+    function union(u, v) {
+        const rootU = find(u);
+        const rootV = find(v);
+        if (rootU !== rootV) {
+            parent[rootV] = rootU;
+            return true;
+        }
+        return false;
+    }
+    
+    // Kruskal's algorithm
+    const mstEdges = [];
+    let totalWeight = 0;
+    
+    for (const edge of undirectedEdges) {
+        if (union(edge.from, edge.to)) {
+            mstEdges.push(edge.originalId);
+            totalWeight += edge.weight;
+            
+            // Stop when we have a spanning tree
+            if (mstEdges.length === nodeIds.length - 1) {
+                break;
+            }
+        }
+    }
+    
+    // Check if we have a spanning tree (connected graph)
+    if (mstEdges.length !== nodeIds.length - 1) {
+        throw new Error("El grafo no es conexo, no se puede aplicar Kruskal");
+    }
+    
+    return {
+        mstEdges,
+        totalWeight
+    };
+}
+
+function visualizeKruskalResults(results) {
+    const { mstEdges, totalWeight } = results;
+    
+    // Reset all edges to default color
+    edges.get().forEach(edge => {
+        edges.update({
+            id: edge.id,
+            color: '#000000',
+            width: 2
+        });
+    });
+    
+    // Highlight MST edges
+    mstEdges.forEach(edgeId => {
+        edges.update({
+            id: edgeId,
+            color: '#33FF80', // Green color for MST edges
+            width: 4
+        });
+    });
+    
+    // Show results in modal
+    const modal = document.getElementById('criticalPathModal');
+    const resultsDiv = document.getElementById('criticalPathNodes');
+    
+    resultsDiv.innerHTML = `
+        <p style="color:#33FF80;">Algoritmo de Kruskal</p>
+        <p>Peso Total: ${totalWeight}</p>
+        <p>Número de arcos: ${mstEdges.length}</p>
+    `;
+    
+    modal.style.display = 'block';
+    
+    document.querySelector('.close-critical-path-modal').onclick = function() {
+        modal.style.display = 'none';
+    };
 }
 
 document.querySelectorAll('input[name="algorithm"]').forEach(radio => {

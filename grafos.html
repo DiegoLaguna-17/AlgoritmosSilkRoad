@@ -48,6 +48,10 @@
                     <input type="radio" name="algorithm" value="kruskal">
                     <span class="radio-label">Kruskal</span>
                 </label>
+                <label class="radio-button">
+                    <input type="radio" name="algorithm" value="djikstra">
+                    <span class="radio-label">Djikstra</span>
+                </label>
                 <!-- Aquí van más algoritmos -->
             </div>
         </div>
@@ -67,6 +71,12 @@
                     <br><br>
                     <label style="color: white;"><input type="radio" name="kruskalMode" checked value="min">Minimizar</label>
                     <label style="color: white;"><input type="radio" name="kruskalMode" value="max"> Maximizar</label>
+                </div>
+
+                <div id="checkboxGroupDijkstra" class="hidden">
+                    <br><br>
+                    <label style="color: white;"><input type="radio" name="dijkstraMode" checked value="shortest">Más Corto</label>
+                    <label style="color: white;"><input type="radio" name="dijkstraMode" value="longest">Más Largo</label>
                 </div>
 
                 <button id="vaciarBtn">Vaciar Lienzo</button>

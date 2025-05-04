@@ -201,8 +201,14 @@ network.on("click", function(params) {
 changeWeightBtn.addEventListener('click', function() {
     if (selectedEdgeId) {
         const edge = edges.get(selectedEdgeId);
+        const selectedAlgorithm = document.querySelector('input[name="algorithm"]:checked').value;
         const newWeight = prompt('Ingrese nuevo peso:', edge.label || "0");
+        
         if (newWeight !== null) {
+            if (selectedAlgorithm === 'djikstra' && parseInt(newWeight) < 0) {
+                alert("No se permiten pesos negativos en el algoritmo de Djikstra");
+                return;
+            }
             edges.update({
                 id: selectedEdgeId,
                 label: newWeight
@@ -336,9 +342,26 @@ vaciarBtn.addEventListener('click', function() {
 });
 
 guardarGrafo.addEventListener('click', function() {
+    // Create a copy of nodes with original colors
+    const originalNodes = nodes.get().map(node => {
+        // Keep start/end node colors (#33FF80), reset others to default (#00E3C6)
+        const isStartEnd = node.label?.includes('(inicio)') || node.label?.includes('(final)');
+        return {
+            ...node,
+            color: isStartEnd ? '#33FF80' : '#00E3C6'
+        };
+    });
+
+    // Create a copy of edges with original colors
+    const originalEdges = edges.get().map(edge => ({
+        ...edge,
+        color: '#000000',
+        width: 2
+    }));
+
     const graphData = {
-        nodes: nodes.get(),
-        edges: edges.get().map(edge => {
+        nodes: originalNodes,
+        edges: originalEdges.map(edge => {
             return {
                 from: edge.from,
                 to: edge.to,
@@ -1076,6 +1099,9 @@ help_btn.addEventListener('click', function() {
         case 'kruskal':
             filePath = 'helps/kruskal.pdf';
             break;
+        case 'djikstra':
+            filePath = 'helps/djikstra.pdf';
+            break;
         default:
             filePath = 'helps/grafos.pdf'
     }
@@ -1139,6 +1165,80 @@ solve_btn.addEventListener('click', function() {
         document.getElementById('criticalPathModal').style.display = 'none';
         document.getElementById('assignmentModal').style.display = 'none';
         document.getElementById('northwestModal').style.display = 'none';
+    } else if (selectedAlgorithm === 'djikstra') {
+        try {
+            const isShortest = document.querySelector('input[name="dijkstraMode"]:checked').value === 'shortest';
+            const results = dijkstraAlgorithm(isShortest);
+            visualizeDijkstraResults(results);
+        } catch (error) {
+            alert("Error in Dijkstra algorithm: " + error.message);
+        }
+    }
+});
+
+// Add these buttons to the context menu
+const setStartBtn = document.createElement('button');
+setStartBtn.id = 'setStartBtn';
+setStartBtn.textContent = 'Asignar Inicio';
+nodeContextMenu.appendChild(setStartBtn);
+
+const setEndBtn = document.createElement('button');
+setEndBtn.id = 'setEndBtn';
+setEndBtn.textContent = 'Asignar Final';
+nodeContextMenu.appendChild(setEndBtn);
+
+// Add event handlers
+setStartBtn.addEventListener('click', function() {
+    if (selectedNodeId) {
+        // Reset previous start node
+        nodes.get().forEach(node => {
+            if (node.label?.includes('(inicio)')) {
+                const newLabel = node.label.replace('(inicio)', '').trim();
+                nodes.update({
+                    id: node.id,
+                    label: newLabel,
+                    color: '#00E3C6'
+                });
+            }
+        });
+        
+        // Set new start node
+        const node = nodes.get(selectedNodeId);
+        const newLabel = node.label ? `${node.label} (inicio)` : `Node ${selectedNodeId} (inicio)`;
+        nodes.update({
+            id: selectedNodeId,
+            label: newLabel,
+            color: '#33FF80'
+        });
+        
+        nodeContextMenu.style.display = 'none';
+    }
+});
+
+setEndBtn.addEventListener('click', function() {
+    if (selectedNodeId) {
+        // Reset previous end node
+        nodes.get().forEach(node => {
+            if (node.label?.includes('(final)')) {
+                const newLabel = node.label.replace('(final)', '').trim();
+                nodes.update({
+                    id: node.id,
+                    label: newLabel,
+                    color: '#00E3C6'
+                });
+            }
+        });
+        
+        // Set new end node
+        const node = nodes.get(selectedNodeId);
+        const newLabel = node.label ? `${node.label} (final)` : `Node ${selectedNodeId} (final)`;
+        nodes.update({
+            id: selectedNodeId,
+            label: newLabel,
+            color: '#33FF80'
+        });
+        
+        nodeContextMenu.style.display = 'none';
     }
 });
 
@@ -1194,6 +1294,183 @@ function allowsCycles() {
     return selectedAlgorithm === 'grafo';
 }
 
+function dijkstraAlgorithm(isShortest) {
+    const nodeIds = nodes.getIds().sort((a, b) => a - b);
+    const edgesList = edges.get();
+    
+    // Check for disconnected nodes
+    const connectedNodes = new Set();
+    edgesList.forEach(edge => {
+        connectedNodes.add(edge.from);
+        connectedNodes.add(edge.to);
+    });
+    
+    const disconnectedNodes = nodeIds.filter(id => !connectedNodes.has(id));
+    if (disconnectedNodes.length > 0) {
+        throw new Error(`El grafo tiene nodos no conectados: ${disconnectedNodes.join(', ')}`);
+    }
+
+    // Find start and end nodes
+    const startNode = nodes.get().find(node => node.color === '#33FF80' && node.label?.includes('(inicio)'));
+    const endNode = nodes.get().find(node => node.color === '#33FF80' && node.label?.includes('(final)'));
+    
+    if (!startNode || !endNode) {
+        throw new Error("Por favor asigne nodos de inicio y final");
+    }
+    
+    const startId = startNode.id;
+    const endId = endNode.id;
+    
+    // Initialize distances
+    const distances = {};
+    const previous = {};
+    const visited = new Set();
+    const unvisited = new Set(nodeIds);
+    
+    nodeIds.forEach(id => {
+        distances[id] = id === startId ? 0 : (isShortest ? Infinity : -Infinity);
+        previous[id] = null;
+    });
+    
+    while (unvisited.size > 0) {
+        // Find unvisited node with smallest/largest distance
+        let currentId = null;
+        unvisited.forEach(id => {
+            if (currentId === null || 
+                (isShortest && distances[id] < distances[currentId]) || 
+                (!isShortest && distances[id] > distances[currentId])) {
+                currentId = id;
+            }
+        });
+        
+        if (currentId === null || 
+            (isShortest && distances[currentId] === Infinity) || 
+            (!isShortest && distances[currentId] === -Infinity)) {
+            break; // No path exists
+        }
+        
+        if (currentId === endId) {
+            break; // Reached destination
+        }
+        
+        unvisited.delete(currentId);
+        visited.add(currentId);
+        
+        // Update distances to neighbors
+        edgesList
+            .filter(edge => edge.from === currentId || (!isDirectedGraph && edge.to === currentId))
+            .forEach(edge => {
+                const neighborId = edge.from === currentId ? edge.to : edge.from;
+                if (visited.has(neighborId)) return;
+                
+                const weight = parseInt(edge.label) || 0;
+                if (weight < 0) {
+                    throw new Error("Negative weights are not allowed for Dijkstra's algorithm");
+                }
+                
+                const alt = isShortest ? 
+                    distances[currentId] + weight : 
+                    distances[currentId] + weight;
+                
+                if ((isShortest && alt < distances[neighborId]) || 
+                    (!isShortest && alt > distances[neighborId])) {
+                    distances[neighborId] = alt;
+                    previous[neighborId] = currentId;
+                }
+            });
+    }
+    
+    // Reconstruct path
+    const path = [];
+    let current = endId;
+    
+    while (current !== null) {
+        path.unshift(current);
+        current = previous[current];
+    }
+    
+    if (path.length === 1 && path[0] !== startId) {
+        throw new Error("No path exists between start and end nodes");
+    }
+    
+    return {
+        path,
+        totalDistance: distances[endId],
+        distances,
+        previous
+    };
+}
+
+function visualizeDijkstraResults(results) {
+    const { path, totalDistance } = results;
+    
+    // First reset all nodes and edges to their original state
+    nodes.get().forEach(node => {
+        // Keep start/end nodes green, others default color
+        const isStartEnd = node.label?.includes('(inicio)') || node.label?.includes('(final)');
+        nodes.update({
+            id: node.id,
+            color: isStartEnd ? '#33FF80' : '#00E3C6'
+        });
+    });
+    
+    edges.get().forEach(edge => {
+        edges.update({
+            id: edge.id,
+            color: '#000000',
+            width: 2
+        });
+    });
+    
+    // Now highlight the current solution path
+    for (let i = 0; i < path.length - 1; i++) {
+        const fromId = path[i];
+        const toId = path[i+1];
+        
+        const edge = edges.get().find(e => 
+            (e.from === fromId && e.to === toId) || 
+            (!isDirectedGraph && e.from === toId && e.to === fromId)
+        );
+        
+        if (edge) {
+            edges.update({
+                id: edge.id,
+                color: '#33FF80',
+                width: 4
+            });
+        }
+        
+        nodes.update({
+            id: fromId,
+            color: '#33FF80'
+        });
+    }
+    
+    // Highlight the end node
+    nodes.update({
+        id: path[path.length - 1],
+        color: '#33FF80'
+    });
+    
+    // Show results modal
+    const modal = document.getElementById('criticalPathModal');
+    const resultsDiv = document.getElementById('criticalPathNodes');
+    
+    resultsDiv.innerHTML = `
+        <p style="color:#33FF80;">Algoritmo de Dijkstra (${document.querySelector('input[name="dijkstraMode"]:checked').value === 'shortest' ? 'Más Corto' : 'Más Largo'})</p>
+        <p>Distancia Total: ${totalDistance}</p>
+        <p>Camino: ${path.map(id => {
+            const node = nodes.get(id);
+            return node.label ? node.label.split('\n')[0] : `Nodo ${id}`;
+        }).join(' → ')}</p>
+    `;
+    
+    modal.style.display = 'block';
+    
+    document.querySelector('.close-critical-path-modal').onclick = function() {
+        modal.style.display = 'none';
+    };
+}
 function handleAlgorithmChange() {
     const selectedAlgorithm = document.querySelector('input[name="algorithm"]:checked').value;
     document.getElementById('currentAlgorithm').textContent = `Actual: ${
@@ -1201,13 +1478,15 @@ function handleAlgorithmChange() {
         selectedAlgorithm === 'cpm' ? 'Johnson' :
         selectedAlgorithm === 'Asignacion' ? 'Asignación' :
         selectedAlgorithm === 'noroeste' ? 'Noroeste' :
-        'Kruskal'
+        selectedAlgorithm === 'kruskal' ? 'Kruskal' :
+        selectedAlgorithm === 'djikstra' ? 'Dijkstra' :
+        'Johnson'
     }`;
     
     graph.clear();
     updateAdjacencyMatrix();
     
-    isDirectedGraph = selectedAlgorithm !== 'kruskal';
+    isDirectedGraph = selectedAlgorithm !== 'kruskal' && selectedAlgorithm !== 'djikstra';
     
     network.setOptions({
         edges: {
@@ -1229,6 +1508,17 @@ function handleAlgorithmChange() {
     } else {
         checkboxGroup1.classList.add('hidden');
         checkboxGroupKruskal.classList.add('hidden');
+    }
+
+
+    const checkboxGroupDijkstra = document.getElementById('checkboxGroupDijkstra');
+
+    if (selectedAlgorithm === 'djikstra') {
+        checkboxGroup1.classList.add('hidden');
+        checkboxGroupKruskal.classList.add('hidden');
+        checkboxGroupDijkstra.classList.remove('hidden');
+    } else {
+        checkboxGroupDijkstra.classList.add('hidden');
     }
 }
 

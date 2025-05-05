@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Mi Proyecto</title>
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        
+        /* Estilos para el encabezado */
+        header {
+            text-align: center;
+            padding: 30px 0;
+            background-color: #2c3e50;
+            color: white;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        
+        /* Estilos para las secciones */
+        section {
+            background-color: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        
+        /* Estilos para los objetivos específicos */
+        .objetivos-especificos {
+            margin-left: 20px;
+        }
+        
+        .objetivos-especificos li {
+            margin-bottom: 10px;
+        }
+        
+        /* Estilos para el footer */
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Sistema de rutas alternativas ante Bloqueos con el Algoritmo de Dijkstra</h1>
+    </header>
+    
+    <section id="introduccion">
+        <h2>Introducción</h2>
+        <p>En las ciudades bolivianas, sobre todo en La Paz y El Alto, los bloqueos imprevistos en calles y avenidas son abituales y generan 
+            grandes dificultades para la movilidad de los ciudadanos. Un sistema que recomiende rutas alternativas puede mejorar la movilidad y 
+            reducir el tiempo perdido en el tráfico. El algoritmo de Dijkstra permite encontrar rutas más cortas desde un origen a un destino, 
+            evitando caminos intransitables o congestionados.</p>
+    </section>
+    
+    <section id="problema">
+        <h2>Problema</h2>
+        <p>Los bloqueos frecuentes impiden la circulación fluida en calles clave como lo es el centro paceño, afectando a miles de personas que 
+            necesitan desplazarse diariamente. Actualmente, no existen herramientas automatizadas que indiquen rutas alternativas para estos casos.</p>
+    </section>
+    
+    <section id="objetivo-general">
+        <h2>Objetivo General</h2>
+        <p>Proponer un sistema que utilice el algoritmo de Dijkstra para generar rutas alternativas que permitan a los ciudadanos desplazarse eficientemente durante bloqueos.        </p>
+    </section>
+    
+    <section id="objetivos-especificos">
+        <h2>Objetivos Específicos</h2>
+        <p>Los objetivos específicos son pasos concretos que te permitirán alcanzar el objetivo general. Deben ser medibles, alcanzables y tener 
+            un plazo definido.</p>
+        <ol class="objetivos-especificos">
+            <li>Modelar la red vial urbana como un grafo con pesos que representen lo concurrido de dichos caminos.</li>
+            <li>Incluir condiciones dinámicas como calles bloqueadas con pesos altos.</li>
+            <li>Implementar el algoritmo de Dijkstra para encontrar rutas cortas.</li>
+            <li>Desarrollar una interfaz simple para que el usuario ingrese origen y destino.</li>
+            <li>Probar el sistema con escenarios reales de bloqueos frecuentes.</li>
+        </ol>
+    </section>
+    
+  
+</body>
+<footer>
+    <div class="ucb">
+        <img src="images/ucb.png">
+        <h1>Universidad Católica Boliviana San Pablo</h1>
+       
+    </div>
+    <div class="informacion">
+        <ul>
+            <li>Análisis de Algoritmos</li>
+            <li>Gestión 2025</li>
+        </ul>
+    </div>
+</footer>
+</html>

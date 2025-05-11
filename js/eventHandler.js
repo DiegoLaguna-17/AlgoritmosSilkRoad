@@ -251,7 +251,7 @@ network.on('doubleClick', function(params) {
                         from: sourceNodeId,
                         to: destinationNodeId,
                         label: "0",
-                        arrows: isDirectedGraph ? 'to' : { enabled: false } // Modified this line
+                        arrows: isDirectedGraph ? 'to' : { enabled: false }
                     });
                     updateAdjacencyMatrix();
                 }
@@ -261,7 +261,7 @@ network.on('doubleClick', function(params) {
                         from: sourceNodeId,
                         to: destinationNodeId,
                         label: '0',
-                        arrows: isDirectedGraph ? 'to' : { enabled: false } // Modified this line
+                        arrows: isDirectedGraph ? 'to' : { enabled: false }
                     });
                     updateAdjacencyMatrix();
                 } else {
@@ -1100,7 +1100,7 @@ help_btn.addEventListener('click', function() {
             filePath = 'helps/kruskal.pdf';
             break;
         case 'djikstra':
-            filePath = 'helps/djikstra.pdf';
+            filePath = 'helps/dijkstra.pdf';
             break;
         default:
             filePath = 'helps/grafos.pdf'
@@ -1176,7 +1176,6 @@ solve_btn.addEventListener('click', function() {
     }
 });
 
-// Add these buttons to the context menu
 const setStartBtn = document.createElement('button');
 setStartBtn.id = 'setStartBtn';
 setStartBtn.textContent = 'Asignar Inicio';
@@ -1190,7 +1189,6 @@ nodeContextMenu.appendChild(setEndBtn);
 // Add event handlers
 setStartBtn.addEventListener('click', function() {
     if (selectedNodeId) {
-        // Reset previous start node
         nodes.get().forEach(node => {
             if (node.label?.includes('(inicio)')) {
                 const newLabel = node.label.replace('(inicio)', '').trim();
@@ -1202,7 +1200,6 @@ setStartBtn.addEventListener('click', function() {
             }
         });
         
-        // Set new start node
         const node = nodes.get(selectedNodeId);
         const newLabel = node.label ? `${node.label} (inicio)` : `Node ${selectedNodeId} (inicio)`;
         nodes.update({
@@ -1217,7 +1214,6 @@ setStartBtn.addEventListener('click', function() {
 
 setEndBtn.addEventListener('click', function() {
     if (selectedNodeId) {
-        // Reset previous end node
         nodes.get().forEach(node => {
             if (node.label?.includes('(final)')) {
                 const newLabel = node.label.replace('(final)', '').trim();
@@ -1229,7 +1225,6 @@ setEndBtn.addEventListener('click', function() {
             }
         });
         
-        // Set new end node
         const node = nodes.get(selectedNodeId);
         const newLabel = node.label ? `${node.label} (final)` : `Node ${selectedNodeId} (final)`;
         nodes.update({
@@ -1298,7 +1293,6 @@ function dijkstraAlgorithm(isShortest) {
     const nodeIds = nodes.getIds().sort((a, b) => a - b);
     const edgesList = edges.get();
     
-    // Check for disconnected nodes
     const connectedNodes = new Set();
     edgesList.forEach(edge => {
         connectedNodes.add(edge.from);
@@ -1310,7 +1304,6 @@ function dijkstraAlgorithm(isShortest) {
         throw new Error(`El grafo tiene nodos no conectados: ${disconnectedNodes.join(', ')}`);
     }
 
-    // Find start and end nodes
     const startNode = nodes.get().find(node => node.color === '#33FF80' && node.label?.includes('(inicio)'));
     const endNode = nodes.get().find(node => node.color === '#33FF80' && node.label?.includes('(final)'));
     
@@ -1321,7 +1314,6 @@ function dijkstraAlgorithm(isShortest) {
     const startId = startNode.id;
     const endId = endNode.id;
     
-    // Initialize distances
     const distances = {};
     const previous = {};
     const visited = new Set();
@@ -1333,7 +1325,6 @@ function dijkstraAlgorithm(isShortest) {
     });
     
     while (unvisited.size > 0) {
-        // Find unvisited node with smallest/largest distance
         let currentId = null;
         unvisited.forEach(id => {
             if (currentId === null || 
@@ -1346,21 +1337,20 @@ function dijkstraAlgorithm(isShortest) {
         if (currentId === null || 
             (isShortest && distances[currentId] === Infinity) || 
             (!isShortest && distances[currentId] === -Infinity)) {
-            break; // No path exists
+            break; 
         }
         
         if (currentId === endId) {
-            break; // Reached destination
+            break;
         }
         
         unvisited.delete(currentId);
         visited.add(currentId);
         
-        // Update distances to neighbors
         edgesList
-            .filter(edge => edge.from === currentId || (!isDirectedGraph && edge.to === currentId))
+            .filter(edge => edge.from === currentId)
             .forEach(edge => {
-                const neighborId = edge.from === currentId ? edge.to : edge.from;
+                const neighborId = edge.to;
                 if (visited.has(neighborId)) return;
                 
                 const weight = parseInt(edge.label) || 0;
@@ -1380,7 +1370,6 @@ function dijkstraAlgorithm(isShortest) {
             });
     }
     
-    // Reconstruct path
     const path = [];
     let current = endId;
     
@@ -1404,9 +1393,7 @@ function dijkstraAlgorithm(isShortest) {
 function visualizeDijkstraResults(results) {
     const { path, totalDistance } = results;
     
-    // First reset all nodes and edges to their original state
     nodes.get().forEach(node => {
-        // Keep start/end nodes green, others default color
         const isStartEnd = node.label?.includes('(inicio)') || node.label?.includes('(final)');
         nodes.update({
             id: node.id,
@@ -1422,21 +1409,18 @@ function visualizeDijkstraResults(results) {
         });
     });
     
-    // Now highlight the current solution path
     for (let i = 0; i < path.length - 1; i++) {
         const fromId = path[i];
         const toId = path[i+1];
         
-        const edge = edges.get().find(e => 
-            (e.from === fromId && e.to === toId) || 
-            (!isDirectedGraph && e.from === toId && e.to === fromId)
-        );
+        const edge = edges.get().find(e => e.from === fromId && e.to === toId);
         
         if (edge) {
             edges.update({
                 id: edge.id,
                 color: '#33FF80',
-                width: 4
+                width: 4,
+                arrows: 'to'
             });
         }
         
@@ -1446,13 +1430,11 @@ function visualizeDijkstraResults(results) {
         });
     }
     
-    // Highlight the end node
     nodes.update({
         id: path[path.length - 1],
         color: '#33FF80'
     });
     
-    // Show results modal
     const modal = document.getElementById('criticalPathModal');
     const resultsDiv = document.getElementById('criticalPathNodes');
     
@@ -1471,6 +1453,7 @@ function visualizeDijkstraResults(results) {
         modal.style.display = 'none';
     };
 }
+
 function handleAlgorithmChange() {
     const selectedAlgorithm = document.querySelector('input[name="algorithm"]:checked').value;
     document.getElementById('currentAlgorithm').textContent = `Actual: ${
@@ -1486,7 +1469,7 @@ function handleAlgorithmChange() {
     graph.clear();
     updateAdjacencyMatrix();
     
-    isDirectedGraph = selectedAlgorithm !== 'kruskal' && selectedAlgorithm !== 'djikstra';
+    isDirectedGraph = selectedAlgorithm !== 'kruskal';
     
     network.setOptions({
         edges: {

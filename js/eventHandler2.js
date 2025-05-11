@@ -10,6 +10,8 @@ const nodes = new vis.DataSet([
 const edges = new vis.DataSet([]);
 
 let isDirectedGraph = true;
+const width = container.offsetWidth;
+const height = container.offsetHeight;
 
 const options = {
     nodes: {
@@ -57,6 +59,7 @@ const options = {
 
 const data = { nodes, edges };
 const network = new vis.Network(container, data, options);
+
 const graph = new Graph(nodes, edges);
 
 // Variables Auxiliares
@@ -236,8 +239,8 @@ window.onload=function(){
     nodes.add({
             id: 1,
             label: `La Paz`,
-            x: -300,
-            y: 80,
+            x: width/-4.5,
+            y: height/14,
             value: 0,
             
         }
@@ -245,8 +248,8 @@ window.onload=function(){
     nodes.add({
             id: 2,
             label: `Santa Cruz`,
-            x: 35,
-            y: 90,
+            x: width/35,
+            y: height/13,
             value: 0,
             
         }
@@ -254,8 +257,8 @@ window.onload=function(){
     nodes.add({
             id: 3,
             label: `Cochabamba`,
-            x: -140,
-            y: 100,
+            x: width/-8.7,
+            y: height/11.5,
             value: 0,
             
         }
@@ -263,8 +266,8 @@ window.onload=function(){
     nodes.add({
             id: 4,
             label: `Tarija`,
-            x: -35,
-            y: 420,
+            x: width/-32,
+            y: height/2.7,
             value: 0,
             
         }
@@ -272,8 +275,8 @@ window.onload=function(){
     nodes.add({
             id: 5,
             label: `Trinidad`,
-            x: -50,
-            y: -90,
+            x: width/-35,
+            y: height/-12,
             value: 0,
             
         }
@@ -281,8 +284,8 @@ window.onload=function(){
     nodes.add({
             id: 6,
             label: `Sucre`,
-            x: -70,
-            y: 220,
+            x: width/-23,
+            y: height/4.5,
             value: 0,
             
         }
@@ -290,8 +293,8 @@ window.onload=function(){
     nodes.add({
             id: 7,
             label: `Cobija`,
-            x: -350,
-            y: -390,
+            x: width/-3.35,
+            y: height/-2.8,
             value: 0,
             
         }
@@ -299,8 +302,8 @@ window.onload=function(){
     nodes.add({
             id: 8,
             label: `Oruro`,
-            x: -220,
-            y: 145,
+            x: width/-5.6,
+            y: height/7,
             value: 0,
             
         }
@@ -308,8 +311,8 @@ window.onload=function(){
     nodes.add({
             id: 9,
             label: `Uyuni`,
-            x: -190,
-            y: 345,
+            x: width/-6.7,
+            y: height/3.1,
             value: 0,
             
         }

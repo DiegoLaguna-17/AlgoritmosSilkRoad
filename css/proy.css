@@ -4,7 +4,6 @@
     height: 135vh; 
     border: 1px solid #ddd;
     background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Bolivia_satelite.png/1200px-Bolivia_satelite.png'); /* Ruta a tu imagen */
-    width: 100%;
      background-size: cover;       /* Ajusta la imagen para cubrir todo el contenedor */
     background-position: center;  /* Centra la imagen */
     background-repeat: no-repeat; 
@@ -133,7 +132,7 @@ body {
     justify-content: center;
     align-items: flex-start; 
     overflow-y: auto; 
-    
+    height: 500vh;
 }
 
 .container2 {

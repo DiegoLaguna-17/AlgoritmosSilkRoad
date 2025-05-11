@@ -4,7 +4,7 @@
     height: 135vh; 
     border: 1px solid #ddd;
     background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Bolivia_satelite.png/1200px-Bolivia_satelite.png'); /* Ruta a tu imagen */
-    
+    width: 80%;
 }
 
 

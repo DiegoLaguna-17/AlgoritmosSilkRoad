@@ -565,64 +565,6 @@ document.getElementById('archivo').addEventListener('change', function(e) {
 });
 
 // Algorithm Implementations
-function calculateCriticalPath() {
-    const nodeIds = nodes.getIds().sort((a, b) => a - b);
-    const edgesList = edges.get();
-    
-    const forwardPass = {};
-    const backwardPass = {};
-    const slack = {};
-    const criticalPath = [];
-    
-    nodeIds.forEach(id => {
-        forwardPass[id] = 0;
-        backwardPass[id] = Infinity;
-    });
-    
-    const sortedNodes = topologicalSort(nodeIds, edgesList);
-    sortedNodes.forEach(nodeId => {
-        edgesList
-            .filter(edge => edge.from === nodeId)
-            .forEach(edge => {
-                const weight = parseInt(edge.label) || 0;
-                forwardPass[edge.to] = Math.max(
-                    forwardPass[edge.to], 
-                    forwardPass[nodeId] + weight
-                );
-            });
-    });
-    
-    const lastNode = sortedNodes[sortedNodes.length - 1];
-    backwardPass[lastNode] = forwardPass[lastNode];
-    
-    [...sortedNodes].reverse().forEach(nodeId => {
-        edgesList
-            .filter(edge => edge.to === nodeId)
-            .forEach(edge => {
-                const weight = parseInt(edge.label) || 0;
-                backwardPass[edge.from] = Math.min(
-                    backwardPass[edge.from],
-                    backwardPass[nodeId] - weight
-                );
-            });
-    });
-    
-    edgesList.forEach(edge => {
-        const weight = parseInt(edge.label) || 0;
-        slack[edge.id] = backwardPass[edge.to] - forwardPass[edge.from] - weight;
-        
-        if (slack[edge.id] === 0) {
-            criticalPath.push(edge.id);
-        }
-    });
-    
-    return {
-        forwardPass,
-        backwardPass,
-        slack,
-        criticalPath
-    };
-}
 
 function topologicalSort(nodeIds, edgesList) {
     const visited = new Set();
@@ -662,84 +604,6 @@ const criticalPathModalHTML = `
 </div>
 `;
 document.body.insertAdjacentHTML('beforeend', criticalPathModalHTML);
-
-function visualizeCriticalPath(results) {
-    const { forwardPass, backwardPass, slack, criticalPath } = results;
-    
-    const criticalNodes = new Set();
-    const nodeOrder = [];
-    
-    const criticalEdges = edges.get(criticalPath);
-    
-    let currentNode = null;
-    for (const edge of criticalEdges) {
-        const isStartNode = !criticalEdges.some(e => e.to === edge.from);
-        if (isStartNode) {
-            currentNode = edge.from;
-            break;
-        }
-    }
-    
-    if (!currentNode && criticalEdges.length > 0) {
-        currentNode = criticalEdges[0].from;
-    }
-    
-    const pathNodes = [];
-    if (currentNode) {
-        pathNodes.push(currentNode);
-        criticalNodes.add(currentNode);
-        
-        while (true) {
-            const nextEdge = criticalEdges.find(e => e.from === currentNode);
-            if (!nextEdge) break;
-            
-            currentNode = nextEdge.to;
-            pathNodes.push(currentNode);
-            criticalNodes.add(currentNode);
-        }
-    }
-    
-    nodes.get().forEach(node => {
-        const isCritical = criticalNodes.has(node.id);
-        nodes.update({
-            id: node.id,
-            color: isCritical ? '#E8FF00' : '#00E3C6',
-            label: `${node.label}\n${forwardPass[node.id]} | ${backwardPass[node.id]}`
-        });
-    });
-    
-    edges.get().forEach(edge => {
-        const weight = edge.label || "0";
-        edges.update({
-            id: edge.id,
-            label: `${weight} | h = ${slack[edge.id]}`
-        });
-    });
-    
-    edges.get().forEach(edge => {
-        const isCritical = criticalPath.includes(edge.id);
-        edges.update({
-            id: edge.id,
-            color: isCritical ? '#E8FF00' : '#000000',
-            width: isCritical ? 3 : 2
-        });
-    });
-    
-    const modal = document.getElementById('criticalPathModal');
-    const pathDiv = document.getElementById('criticalPathNodes');
-    
-    const pathText = pathNodes.map(id => {
-        const node = nodes.get(id);
-        return node.label ? node.label.split('\n')[0] : `Node ${id}`;
-    }).join(' → ');
-    
-    pathDiv.textContent = pathText;
-    modal.style.display = 'block';
-    
-    document.querySelector('.close-critical-path-modal').onclick = function() {
-        modal.style.display = 'none';
-    };
-}
 
 function hungarianAlgorithm(isMaximization) {
     const nodeIds = nodes.getIds().sort((a, b) => a - b);
@@ -798,7 +662,7 @@ function hungarianAlgorithm(isMaximization) {
         }
     }
 
-    const assignment = hungarianAssignment(paddedMatrix);
+    const assignment = hungarianAssignment(paddedMatrix,isMaximization,matrix);
 
     const assignments = [];
     let totalCost = 0;
@@ -826,15 +690,16 @@ function hungarianAlgorithm(isMaximization) {
 
         totalCost += originalCost;
     }
-
+    const suminis=document.getElementById('suministros').value;
+    obtenerDatos(matrix,assignments,isMaximization,totalCost,suminis);
     return { assignments, totalCost };
 }
 
 // Implementación completa del algoritmo húngaro para asignación
-function hungarianAssignment(costMatrix) {
+function hungarianAssignment(costMatrix,maxmin,matrix) {
     const n = costMatrix.length;
     const m = costMatrix[0].length;
-    
+    console.log(matrix)
     // Inicializar matrices de seguimiento
     const u = new Array(n + 1).fill(0);
     const v = new Array(m + 1).fill(0);
@@ -893,9 +758,45 @@ function hungarianAssignment(costMatrix) {
             assignment[p[j] - 1] = j - 1;
         }
     }
-    
     return assignment;
 }
+async function obtenerDatos(matriz,asign, min,total,suminis) {
+  const m = min ? 'Maximizar' : 'Minimizar';
+    
+  const data = {
+    matriz:matriz,
+    asignaciones: asign,
+    minmax: m,
+    total:total,
+    suministros:suminis
+  };
+
+  try {
+    const res = await fetch('https://api-asignacion-f25l.vercel.app/describir_asignacion', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+
+    const result = await res.json();
+
+    console.log("✅ Respuesta de la API:", result.respuesta); // ✅ Esto ya funcionará
+
+    const respuestaEl = document.getElementById('respuesta');
+    if (respuestaEl) {
+      respuestaEl.textContent = result.respuesta || 'No se recibió una respuesta válida.';
+    } else {
+      console.warn("No se encontró el elemento con ID 'respuesta'");
+    }
+
+  } catch (err) {
+    console.error('Error al conectar con la API:', err);
+  }
+}
+
+
 
 function visualizeAssignments(results) {
     const { assignments, totalCost } = results;
@@ -918,17 +819,20 @@ function visualizeAssignments(results) {
     const modal = document.getElementById('assignmentModal');
     const resultsDiv = document.getElementById('assignmentResults');
     const sum=document.getElementById('suministros').value;
+    const resultadosAi='';
     resultsDiv.innerHTML = assignments.map(pair => {
         return `
             <div class="assignment-item">
                 ${pair.fromLabel} → ${pair.toLabel} = ${pair.cost}
             </div>
         `;
+        
     }).join('') + `
         <div class="total-cost">
             ${sum} = ${isNaN(totalCost) ? 0 : totalCost}
         </div>
     `;
+    
     
     modal.style.display = 'block';
     
@@ -936,282 +840,6 @@ function visualizeAssignments(results) {
         modal.style.display = 'none';
     };
 }
-
-// Modal Noroeste
-const northwestModalHTML = `
-<div id="northwestModal" class="modal" style="display: none; cursor: pointer; max-width: 700px;">
-    <div class="modal-content">
-        <span class="close-northwest-modal">&times;</span>
-        <h3 style="color: #33FF80;">Resultado Noroeste</h3>
-        <div id="northwestResults">
-            <p>Iteraciones: <span id="iterationCount">0</span></p>
-            <p>Costo total = <span id="northwestTotalCost">0</span></p>
-        </div>
-    </div>
-</div>
-`;
-document.body.insertAdjacentHTML('beforeend', northwestModalHTML);
-
-function northwestCornerAlgorithm(isMaximization) {
-    const nodeIds = nodes.getIds().sort((a, b) => a - b);
-    const matrix = graph.getAdjacencyMatrix();
-    
-    if (nodeIds.length === 0) {
-        throw new Error("No hay nodos en el grafo");
-    }
-
-    const origins = new Set();
-    const destinations = new Set();
-    
-    edges.get().forEach(edge => {
-        origins.add(edge.from);
-        destinations.add(edge.to);
-    });
-
-    let supplyNodes = Array.from(origins);
-    let demandNodes = Array.from(destinations);
-
-    let originalSupplies = supplyNodes.map(id => parseInt(graph.getSupplyDemandValue(id)) || 0);
-    let originalDemands = demandNodes.map(id => parseInt(graph.getSupplyDemandValue(id)) || 0);
-
-    let supplies = [...originalSupplies];
-    let demands = [...originalDemands];
-
-    const totalSupply = supplies.reduce((a, b) => a + b, 0);
-    const totalDemand = demands.reduce((a, b) => a + b, 0);
-
-    let wildcardAdded = false;
-    if (totalSupply !== totalDemand) {
-        wildcardAdded = true;
-        if (totalSupply > totalDemand) {
-
-            const wildcardValue = totalSupply - totalDemand;
-            const wildcardId = Math.max(...nodeIds) + 1;
-            
-            demandNodes.push(wildcardId);
-            demands.push(wildcardValue);
-            originalDemands.push(wildcardValue);
-            
-            supplyNodes.forEach(fromId => {
-                edges.add({
-                    from: fromId,
-                    to: wildcardId,
-                    label: "0",
-                    arrows: 'to'
-                });
-            });
-            
-            nodes.add({
-                id: wildcardId,
-                label: `Nodo ${wildcardId}\nd:${wildcardValue}`,
-                color: '#FFA500'
-            });
-        } else {
-
-            const wildcardValue = totalDemand - totalSupply;
-            const wildcardId = Math.max(...nodeIds) + 1;
-            
-            supplyNodes.push(wildcardId);
-            supplies.push(wildcardValue);
-            originalSupplies.push(wildcardValue);
-            
-            demandNodes.forEach(toId => {
-                edges.add({
-                    from: wildcardId,
-                    to: toId,
-                    label: "0",
-                    arrows: 'to'
-                });
-            });
-            
-            nodes.add({
-                id: wildcardId,
-                label: `Nodo ${wildcardId}\ns:${wildcardValue}`,
-                color: '#FFA500'
-            });
-        }
-        updateAdjacencyMatrix();
-    }
-
-    const costMatrix = supplyNodes.map((fromId, i) => {
-        const fromIndex = nodeIds.indexOf(fromId);
-        return demandNodes.map((toId, j) => {
-            const toIndex = nodeIds.indexOf(toId);
-            const edge = edges.get().find(e => e.from === fromId && e.to === toId);
-            const cost = edge ? parseInt(edge.label) || 0 : 0;
-            return cost;
-        });
-    });
-
-    const allocations = Array(supplyNodes.length).fill().map(() => Array(demandNodes.length).fill(0));
-    let totalCost = 0;
-    let iterations = 0;
-    let i = 0, j = 0;
-
-    while (i < supplyNodes.length && j < demandNodes.length) {
-        iterations++;
-        const supply = supplies[i];
-        const demand = demands[j];
-        
-        if (supply <= 0 || demand <= 0) {
-            if (supply <= 0) i++;
-            if (demand <= 0) j++;
-            continue;
-        }
-        
-        const allocation = Math.min(supply, demand);
-        allocations[i][j] = allocation;
-        
-        supplies[i] -= allocation;
-        demands[j] -= allocation;
-        
-        totalCost += allocation * costMatrix[i][j];
-        
-        if (supplies[i] === 0) i++;
-        if (demands[j] === 0) j++;
-    }
-
-    return {
-        totalCost,
-        iterations,
-        allocations,
-        supplyNodes,
-        demandNodes,
-        originalSupplies,
-        originalDemands,
-        wildcardAdded
-    };
-}
-
-function visualizeNorthwestResults(results) {
-    const { 
-        totalCost, 
-        iterations, 
-        allocations, 
-        supplyNodes, 
-        demandNodes,
-        originalSupplies,
-        originalDemands,
-        wildcardAdded
-    } = results;
-    
-    nodes.get().forEach(node => {
-        const isSupply = supplyNodes.includes(node.id);
-        const isDemand = demandNodes.includes(node.id);
-        
-        nodes.update({
-            id: node.id,
-            color: isSupply ? '#33FF80' : (isDemand ? '#FF5733' : '#00E3C6')
-        });
-    });
-
-    edges.get().forEach(edge => {
-        const fromIndex = supplyNodes.indexOf(edge.from);
-        const toIndex = demandNodes.indexOf(edge.to);
-        
-        if (fromIndex !== -1 && toIndex !== -1 && allocations[fromIndex][toIndex] > 0) {
-            edges.update({
-                id: edge.id,
-                color: '#FFD700',
-                width: 3,
-                label: `${edge.label} (${allocations[fromIndex][toIndex]})`
-            });
-        }
-    });
-
-    const modal = document.getElementById('northwestModal');
-    const resultsDiv = document.getElementById('northwestResults');
-    
-    const costMatrix = supplyNodes.map(fromId => {
-        return demandNodes.map(toId => {
-            const edge = edges.get().find(e => e.from === fromId && e.to === toId);
-            return edge ? parseInt(edge.label) || 0 : 0;
-        });
-    });
-
-    const totalSupply = originalSupplies.reduce((a, b) => a + b, 0);
-    const totalDemand = originalDemands.reduce((a, b) => a + b, 0);
-    
-    let costTable = '<table border="1" style="width:100%; border-collapse: collapse; margin-top: 10px;">';
-    costTable += '<caption style="margin-bottom: 5px; font-weight: bold;">Matriz de Costos Inicial</caption>';
-    costTable += '<tr><th></th>';
-    
-    demandNodes.forEach(id => {
-        const node = nodes.get(id);
-        costTable += `<th>${node.label.split('\n')[0]}</th>`;
-    });
-    costTable += '<th>Oferta</th></tr>';
-    
-    supplyNodes.forEach((id, i) => {
-        const node = nodes.get(id);
-        costTable += `<tr><td>${node.label.split('\n')[0]}</td>`;
-        
-        demandNodes.forEach((_, j) => {
-            costTable += `<td>${costMatrix[i][j]}</td>`;
-        });
-        
-        costTable += `<td>${originalSupplies[i]}</td></tr>`;
-    });
-    
-    costTable += '<tr><td>Demanda</td>';
-    demandNodes.forEach((_, j) => {
-        costTable += `<td>${originalDemands[j]}</td>`;
-    });
-
-    costTable += `<td><strong>${totalSupply}</strong></td></tr>`;
-    
-    costTable += '</table>';
-
-    let allocationTable = '<table border="1" style="width:100%; border-collapse: collapse; margin-top: 20px;">';
-    allocationTable += '<caption style="margin-bottom: 5px; font-weight: bold;">Asignaciones</caption>';
-    allocationTable += '<tr><th></th>';
-    
-    demandNodes.forEach(id => {
-        const node = nodes.get(id);
-        allocationTable += `<th>${node.label.split('\n')[0]}</th>`;
-    });
-    allocationTable += '<th>Oferta</th></tr>';
-    
-    supplyNodes.forEach((id, i) => {
-        const node = nodes.get(id);
-        allocationTable += `<tr><td>${node.label.split('\n')[0]}</td>`;
-        
-        demandNodes.forEach((_, j) => {
-            const alloc = allocations[i][j] || 0;
-            allocationTable += `<td>${alloc > 0 ? alloc : '-'}</td>`;
-        });
-        
-        const remainingSupply = originalSupplies[i] - allocations[i].reduce((a, b) => a + b, 0);
-        allocationTable += `<td>${remainingSupply}</td></tr>`;
-    });
-    
-    allocationTable += '<tr><td>Demanda</td>';
-    demandNodes.forEach((_, j) => {
-        const remainingDemand = originalDemands[j] - allocations.reduce((a, b) => a + b[j], 0);
-        allocationTable += `<td>${remainingDemand}</td>`;
-    });
-    allocationTable += '<td></td></tr>';
-    
-    if (wildcardAdded) {
-        allocationTable += '<tr><td colspan="' + (demandNodes.length + 2) + '" style="text-align: center; color: orange;">* Se aplicó balanceo automático</td></tr>';
-    }
-    
-    allocationTable += '</table>';
-    
-    resultsDiv.innerHTML = `
-        <p>Iteraciones: <span id="iterationCount">${iterations}</span></p>
-        ${costTable}
-        ${allocationTable}
-        <p style="margin-top: 10px;">Costo total = <span id="northwestTotalCost">${totalCost}</span></p>
-    `;
-    
-    modal.style.display = 'block';
-    
-    document.querySelector('.close-northwest-modal').onclick = function() {
-        modal.style.display = 'none';
-    };
-}
-
 help_btn.addEventListener('click', function() {
     const selectedAlgorithm = document.querySelector('input[name="algorithm"]:checked').value;
     let filePath = '';
@@ -1360,185 +988,6 @@ function allowsCycles() {
     return selectedAlgorithm === 'grafo';
 }
 
-function dijkstraAlgorithm(isShortest) {
-    const nodeIds = nodes.getIds().sort((a, b) => a - b);
-    const edgesList = edges.get();
-    
-    // Check for disconnected nodes
-    const connectedNodes = new Set();
-    edgesList.forEach(edge => {
-        connectedNodes.add(edge.from);
-        connectedNodes.add(edge.to);
-    });
-    
-    const disconnectedNodes = nodeIds.filter(id => !connectedNodes.has(id));
-    if (disconnectedNodes.length > 0) {
-        throw new Error(`El grafo tiene nodos no conectados: ${disconnectedNodes.join(', ')}`);
-    }
-
-    // Find start and end nodes
-    const startNode = nodes.get().find(node => node.color === '#33FF80' && node.label?.includes('(inicio)'));
-    const endNode = nodes.get().find(node => node.color === '#33FF80' && node.label?.includes('(final)'));
-    
-    if (!startNode || !endNode) {
-        throw new Error("Por favor asigne nodos de inicio y final");
-    }
-    
-    const startId = startNode.id;
-    const endId = endNode.id;
-    
-    // Initialize distances
-    const distances = {};
-    const previous = {};
-    const visited = new Set();
-    const unvisited = new Set(nodeIds);
-    
-    nodeIds.forEach(id => {
-        distances[id] = id === startId ? 0 : (isShortest ? Infinity : -Infinity);
-        previous[id] = null;
-    });
-    
-    while (unvisited.size > 0) {
-        // Find unvisited node with smallest/largest distance
-        let currentId = null;
-        unvisited.forEach(id => {
-            if (currentId === null || 
-                (isShortest && distances[id] < distances[currentId]) || 
-                (!isShortest && distances[id] > distances[currentId])) {
-                currentId = id;
-            }
-        });
-        
-        if (currentId === null || 
-            (isShortest && distances[currentId] === Infinity) || 
-            (!isShortest && distances[currentId] === -Infinity)) {
-            break; // No path exists
-        }
-        
-        if (currentId === endId) {
-            break; // Reached destination
-        }
-        
-        unvisited.delete(currentId);
-        visited.add(currentId);
-        
-        // Update distances to neighbors
-        edgesList
-            .filter(edge => edge.from === currentId || (!isDirectedGraph && edge.to === currentId))
-            .forEach(edge => {
-                const neighborId = edge.from === currentId ? edge.to : edge.from;
-                if (visited.has(neighborId)) return;
-                
-                const weight = parseInt(edge.label) || 0;
-                if (weight < 0) {
-                    throw new Error("Negative weights are not allowed for Dijkstra's algorithm");
-                }
-                
-                const alt = isShortest ? 
-                    distances[currentId] + weight : 
-                    distances[currentId] + weight;
-                
-                if ((isShortest && alt < distances[neighborId]) || 
-                    (!isShortest && alt > distances[neighborId])) {
-                    distances[neighborId] = alt;
-                    previous[neighborId] = currentId;
-                }
-            });
-    }
-    
-    // Reconstruct path
-    const path = [];
-    let current = endId;
-    
-    while (current !== null) {
-        path.unshift(current);
-        current = previous[current];
-    }
-    
-    if (path.length === 1 && path[0] !== startId) {
-        throw new Error("No path exists between start and end nodes");
-    }
-    
-    return {
-        path,
-        totalDistance: distances[endId],
-        distances,
-        previous
-    };
-}
-
-function visualizeDijkstraResults(results) {
-    const { path, totalDistance } = results;
-    
-    // First reset all nodes and edges to their original state
-    nodes.get().forEach(node => {
-        // Keep start/end nodes green, others default color
-        const isStartEnd = node.label?.includes('(inicio)') || node.label?.includes('(final)');
-        nodes.update({
-            id: node.id,
-            color: isStartEnd ? '#33FF80' : '#00E3C6'
-        });
-    });
-    
-    edges.get().forEach(edge => {
-        edges.update({
-            id: edge.id,
-            color: '#000000',
-            width: 2
-        });
-    });
-
-
-    
-    // Now highlight the current solution path
-    for (let i = 0; i < path.length - 1; i++) {
-        const fromId = path[i];
-        const toId = path[i+1];
-        
-        const edge = edges.get().find(e => 
-            (e.from === fromId && e.to === toId) || 
-            (!isDirectedGraph && e.from === toId && e.to === fromId)
-        );
-        
-        if (edge) {
-            edges.update({
-                id: edge.id,
-                color: '#33FF80',
-                width: 4
-            });
-        }
-        
-        nodes.update({
-            id: fromId,
-            color: '#33FF80'
-        });
-    }
-    
-    // Highlight the end node
-    nodes.update({
-        id: path[path.length - 1],
-        color: '#33FF80'
-    });
-    
-    // Show results modal
-    const modal = document.getElementById('criticalPathModal');
-    const resultsDiv = document.getElementById('criticalPathNodes');
-    
-    resultsDiv.innerHTML = `
-        <p style="color:#33FF80;">Algoritmo de Dijkstra (${document.querySelector('input[name="dijkstraMode"]:checked').value === 'shortest' ? 'Más Corto' : 'Más Largo'})</p>
-        <p>Distancia Total: ${totalDistance}</p>
-        <p>Camino: ${path.map(id => {
-            const node = nodes.get(id);
-            return node.label ? node.label.split('\n')[0] : `Nodo ${id}`;
-        }).join(' → ')}</p>
-    `;
-    
-    modal.style.display = 'block';
-    
-    document.querySelector('.close-critical-path-modal').onclick = function() {
-        modal.style.display = 'none';
-    };
-}
 function handleAlgorithmChange() {
     const selectedAlgorithm = document.querySelector('input[name="algorithm"]:checked').value;
     document.getElementById('currentAlgorithm').textContent = `Actual: ${
@@ -1590,115 +1039,6 @@ function handleAlgorithmChange() {
     }
 }
 
-function kruskalAlgorithm(isMaximization) {
-    const nodeIds = nodes.getIds().sort((a, b) => a - b);
-    const edgesList = edges.get();
-    
-    if (nodeIds.length === 0) {
-        throw new Error("No hay nodos en el grafo");
-    }
-    
-    const undirectedEdges = [];
-    const edgeMap = new Map();
-    
-    edgesList.forEach(edge => {
-        const key = [edge.from, edge.to].sort().join('-');
-        if (!edgeMap.has(key)) {
-            undirectedEdges.push({
-                from: Math.min(edge.from, edge.to),
-                to: Math.max(edge.from, edge.to),
-                weight: parseInt(edge.label) || 0,
-                originalId: edge.id
-            });
-            edgeMap.set(key, true);
-        }
-    });
-    
-    undirectedEdges.sort((a, b) => isMaximization ? b.weight - a.weight : a.weight - b.weight);
-    
-    const parent = {};
-    nodeIds.forEach(id => {
-        parent[id] = id;
-    });
-    
-    function find(u) {
-        if (parent[u] !== u) {
-            parent[u] = find(parent[u]); 
-        }
-        return parent[u];
-    }
-    
-    function union(u, v) {
-        const rootU = find(u);
-        const rootV = find(v);
-        if (rootU !== rootV) {
-            parent[rootV] = rootU;
-            return true;
-        }
-        return false;
-    }
-    
-    const mstEdges = [];
-    let totalWeight = 0;
-    
-    for (const edge of undirectedEdges) {
-        if (union(edge.from, edge.to)) {
-            mstEdges.push(edge.originalId);
-            totalWeight += edge.weight;
-            
-
-            if (mstEdges.length === nodeIds.length - 1) {
-                break;
-            }
-        }
-    }
-    
-    if (mstEdges.length !== nodeIds.length - 1) {
-        throw new Error("El grafo no es conexo, no se puede aplicar Kruskal");
-    }
-
-    return {
-        mstEdges,
-        totalWeight
-    };
-}
-
-function visualizeKruskalResults(results) {
-    const { mstEdges, totalWeight } = results;
-    const isMaximization = document.querySelector('input[name="kruskalMode"]:checked').value === 'max';
-    
-    edges.get().forEach(edge => {
-        edges.update({
-            id: edge.id,
-            color: '#000000',
-            width: 2
-        });
-    });
-    
-    mstEdges.forEach(edgeId => {
-        edges.update({
-            id: edgeId,
-            color: '#33FF80', 
-            width: 4
-        });
-    });
-    
-    const modal = document.getElementById('criticalPathModal');
-    const resultsDiv = document.getElementById('criticalPathNodes');
-    
-    resultsDiv.innerHTML = `
-        <p style="color:#33FF80;">Algoritmo de Kruskal (${isMaximization ? 'Maximización' : 'Minimización'})</p>
-        <p>⚖️Peso Total: ${totalWeight}</p>
-        <p>#️⃣Número de arcos: ${mstEdges.length}</p>
-    `;
-    
-    modal.style.display = 'block';
-    
-    document.querySelector('.close-critical-path-modal').onclick = function() {
-        modal.style.display = 'none';
-    };
-}
-
 document.querySelectorAll('input[name="algorithm"]').forEach(radio => {
     radio.addEventListener('change', handleAlgorithmChange);
 });
@@ -1711,25 +1051,6 @@ container.addEventListener('contextmenu', function(e) {
 
 document.addEventListener('click', function(e) {
     if (e.button !== 2) { 
-        nodeContextMenu.style.display = 'none';
-    }
-});
-
-addValueBtn.addEventListener('click', function() {
-    if (selectedNodeId) {
-        const currentValue = graph.getSupplyDemandValue(selectedNodeId);
-        const newValue = prompt('Ingrese valor de oferta/demanda:', currentValue);
-        if (newValue !== null) {
-            graph.setSupplyDemandValue(selectedNodeId, newValue);
-            
-            const node = nodes.get(selectedNodeId);
-            const isSupply = edges.get().some(edge => edge.from === selectedNodeId);
-            const prefix = isSupply ? 's:' : 'd:';
-            nodes.update({
-                id: selectedNodeId,
-                label: `Nodo ${selectedNodeId}\n${prefix}${newValue}`
-            });
-        }
         nodeContextMenu.style.display = 'none';
     }
 });

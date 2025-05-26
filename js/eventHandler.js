@@ -242,9 +242,10 @@ network.on('doubleClick', function(params) {
             isCreatingEdge = true;
         } else {
             const destinationNodeId = params.nodes[0];
+            const selectedAlgorithm = document.querySelector('input[name="algorithm"]:checked').value;
             
             if (sourceNodeId !== destinationNodeId) {
-                if (!allowsCycles() && edgeExists(sourceNodeId, destinationNodeId)) {
+                if (selectedAlgorithm !== 'djikstra' && edgeExists(sourceNodeId, destinationNodeId)) {
                     alert('No se permiten múltiples aristas entre nodos en este modo de algoritmo');
                 } else {
                     edges.add({
@@ -408,7 +409,7 @@ document.getElementById('archivo').addEventListener('change', function(e) {
                     if (edge.from === edge.to) {
                         throw new Error("El grafo importado contiene bucles, pero el algoritmo actual no los permite");
                     }
-                    if (edgeMap.has(key)) {
+                    if (selectedAlgorithm !== 'djikstra' && edgeMap.has(key)) {
                         throw new Error("El grafo importado contiene múltiples aristas entre nodos, pero el algoritmo actual no las permite");
                     }
                     edgeMap.set(key, true);
@@ -1286,7 +1287,7 @@ function edgeExists(from, to) {
 
 function allowsCycles() {
     const selectedAlgorithm = document.querySelector('input[name="algorithm"]:checked').value;
-    return selectedAlgorithm === 'grafo';
+    return selectedAlgorithm === 'grafo' || selectedAlgorithm == 'djikstra';
 }
 
 function dijkstraAlgorithm(isShortest) {
@@ -1348,9 +1349,9 @@ function dijkstraAlgorithm(isShortest) {
         visited.add(currentId);
         
         edgesList
-            .filter(edge => edge.from === currentId)
+            .filter(edge => edge.from === currentId || (!isDirectedGraph && edge.to === currentId))
             .forEach(edge => {
-                const neighborId = edge.to;
+                const neighborId = edge.from === currentId ? edge.to : edge.from;
                 if (visited.has(neighborId)) return;
                 
                 const weight = parseInt(edge.label) || 0;

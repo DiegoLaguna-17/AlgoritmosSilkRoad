@@ -1,4 +1,4 @@
-import Graph from './Graph.js';
+import Graph from './Graph2.js';
 
 const container = document.getElementById('network');
 const nodeContextMenu = document.getElementById('nodeContextMenu');
@@ -235,8 +235,11 @@ changeWeightBtn.addEventListener('click', function() {
 });
 
 
-window.onload=function(){
-    nodes.add({
+let aereopuertos=0;
+const cLaPaz=document.getElementById('checkLP')
+cLaPaz.addEventListener('change',()=>{
+    if(cLaPaz.checked){
+         nodes.add({
             id: 1,
             label: `La Paz`,
             x: width/-4.5,
@@ -245,16 +248,37 @@ window.onload=function(){
             
         }
     );
-    nodes.add({
+    aereopuertos++;
+    }else{
+        nodes.remove(1);
+        aereopuertos--;
+    }
+    updateAdjacencyMatrix();
+});
+
+const cSC=document.getElementById('checkSC')
+cSC.addEventListener('change',()=>{
+    if(cSC.checked){
+         nodes.add({
             id: 2,
             label: `Santa Cruz`,
             x: width/35,
             y: height/13,
             value: 0,
             
-        }
-    );
-    nodes.add({
+        });
+        aereopuertos++;
+    }else{
+        nodes.remove(2);
+        aereopuertos--;
+    }
+    updateAdjacencyMatrix();
+});
+
+const cCBBA=document.getElementById('checkCbba')
+cCBBA.addEventListener('change',()=>{
+    if(cCBBA.checked){
+         nodes.add({
             id: 3,
             label: `Cochabamba`,
             x: width/-8.7,
@@ -263,7 +287,18 @@ window.onload=function(){
             
         }
     );
-    nodes.add({
+    aereopuertos++;
+    }else{
+        nodes.remove(3);
+        aereopuertos--;
+    }
+    updateAdjacencyMatrix();
+});
+
+const cTJ=document.getElementById('checkTj')
+cTJ.addEventListener('change',()=>{
+    if(cTJ.checked){
+         nodes.add({
             id: 4,
             label: `Tarija`,
             x: width/-32,
@@ -272,7 +307,18 @@ window.onload=function(){
             
         }
     );
-    nodes.add({
+    aereopuertos++;
+    
+    }else{
+        nodes.remove(4);
+        aereopuertos--;
+    }
+    updateAdjacencyMatrix();
+});
+const cTDD=document.getElementById('checkTdd')
+cTDD.addEventListener('change',()=>{
+    if(cTDD.checked){
+        nodes.add({
             id: 5,
             label: `Trinidad`,
             x: width/-35,
@@ -281,7 +327,17 @@ window.onload=function(){
             
         }
     );
-    nodes.add({
+    aereopuertos++;
+    }else{
+        nodes.remove(5);
+        aereopuertos--;
+    }
+    updateAdjacencyMatrix();
+});
+const cSCR=document.getElementById('checkScr')
+cSCR.addEventListener('change',()=>{
+    if(cSCR.checked){
+        nodes.add({
             id: 6,
             label: `Sucre`,
             x: width/-23,
@@ -290,7 +346,18 @@ window.onload=function(){
             
         }
     );
-    nodes.add({
+    aereopuertos++;
+    
+    }else{
+        nodes.remove(6);
+        aereopuertos--;
+    }
+    updateAdjacencyMatrix();
+});
+const ccbj=document.getElementById('checkCbj')
+ccbj.addEventListener('change',()=>{
+    if(ccbj.checked){
+        nodes.add({
             id: 7,
             label: `Cobija`,
             x: width/-3.35,
@@ -299,6 +366,18 @@ window.onload=function(){
             
         }
     );
+    aereopuertos++;
+    }else{
+        nodes.remove(7);
+        aereopuertos--;
+    }
+    updateAdjacencyMatrix();
+});
+
+const cOrr=document.getElementById('checkOruro')
+cOrr.addEventListener('change',()=>{
+    if(cOrr.checked){
+      
     nodes.add({
             id: 8,
             label: `Oruro`,
@@ -308,23 +387,39 @@ window.onload=function(){
             
         }
     );
-    nodes.add({
+    aereopuertos++;
+    }else{
+        nodes.remove(8);
+        aereopuertos--;
+    }
+    updateAdjacencyMatrix();
+});
+
+const cUyuni=document.getElementById('checkUyuni')
+cUyuni.addEventListener('change',()=>{
+    if(cUyuni.checked){
+        nodes.add({
             id: 9,
             label: `Uyuni`,
             x: width/-6.7,
             y: height/3.1,
             value: 0,
             
-        }
-    );
+        });
+        aereopuertos++;
+    }else{
+        nodes.remove(9);
+        aereopuertos--;
+    }
     updateAdjacencyMatrix();
-};
-
-
+});
+let desastres=9;
 network.on("click", function(params) {
     if (params.nodes.length === 0 && params.edges.length === 0) {
         const pointerPosition = params.pointer.canvas;
-        const newNodeId = nodes.length + 1; 
+        
+        const newNodeId = desastres + 1;
+        desastres++; 
         nodes.add({
             id: newNodeId,
             label: `Nodo ${newNodeId}`,
@@ -333,6 +428,8 @@ network.on("click", function(params) {
             value: 0,
             
         });
+        
+        console.log('aeropuertos en uso'+aereopuertos)
         if (newNodeId > 9) {
             for (let i = 1; i <= 9; i++) {
                 edges.add({
@@ -341,14 +438,15 @@ network.on("click", function(params) {
                     label: "0",
                     arrows: isDirectedGraph ? 'to' : { enabled: false }
                 });
+                
             }
         }
+        updateAdjacencyMatrix();
 
       
 
-        console.log(nodes.length);
-        console.log(pointerPosition.x,pointerPosition.y);
-        updateAdjacencyMatrix();
+       
+        
     }
 });
 
@@ -459,15 +557,15 @@ deleteNodeBtn.addEventListener('click', function() {
 });
 
 vaciarBtn.addEventListener('click', function() {
-    if(nodes.length>9){
-        var i=10;
-        while(nodes.length!=9){
-            graph.removeNode(i);
-            i++;
-        }
+    
+
+    for(let i=10;i<=desastres;i++){
+        graph.removeNode(i);
+    }
+        
         updateAdjacencyMatrix;
     
-    }
+    
     
 });
 

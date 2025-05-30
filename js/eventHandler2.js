@@ -180,8 +180,8 @@ network.on("hoverEdge", function(params) {
     }
     
     edgeContextButton.style.display = 'block';
-    edgeContextButton.style.left = pointer.x + 200+'px';
-    edgeContextButton.style.top = (pointer.y + 100) + 'px';
+    edgeContextButton.style.left = pointer.x + 115+'px';
+    edgeContextButton.style.top = (pointer.y + 120) + 'px';
 });
 
 network.on("blurEdge", function() {
@@ -505,7 +505,7 @@ network.on('oncontext', function(params) {
     // Asegurarnos que no se salga de la pantalla por el lado derecho
     const menuWidth = nodeContextMenu.offsetWidth;
     if (pointer.x + menuWidth > window.innerWidth) {
-        pointer.x = window.innerWidth - menuWidth - 10;
+        pointer.x = window.innerWidth - menuWidth -10;
     }
 
     nodeContextMenu.style.display = 'block';

@@ -132,13 +132,13 @@ body {
     justify-content: center;
     align-items: flex-start; 
     overflow-y: auto; 
-    height: 500vh;
+    height: 100%;
 }
 
 .container2 {
     user-select: none;
     display: flex;
-    width: 100%;
+    width: 105%;
     height: 100%;
     min-height: 100vh; 
     background-color: #10575b;

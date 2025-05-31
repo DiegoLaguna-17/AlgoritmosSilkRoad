@@ -334,3 +334,181 @@ body {
     display: none;
     color: white;
 }
+
+.sumi label{
+    text-align: center;
+    width: 100%;
+    display: block;
+}
+
+#suministros {
+    background: rgb(255, 255, 255);
+    border: 2px solid #0e2433;
+    border-radius: 25px;
+    height: 40px;
+    width: 250px;
+    color: #000000;
+    padding: 0 15px;
+    margin-right: 10px;
+    font-family: 'Rajdhani', sans-serif;
+    outline: none;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    margin-top: 6px;
+}
+
+#suministros :focus {
+    box-shadow: 0 0 10px rgb(136, 5, 71);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+#suministros ::placeholder {
+    color: rgba(48, 233, 11, 0.5);
+}
+
+.menu-asig {
+    position: relative;
+    background: linear-gradient(135deg, #00c4cc, #0066cc);
+    color: white;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 16px;
+    font-size: 16px;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    z-index: 1;
+    overflow: hidden;
+    box-shadow: 0 6px 16px rgba(0, 140, 200, 0.25);
+}
+ 
+.boton-asig {
+    transition: transform 0.3s ease !important;
+}
+
+
+.boton-asig:hover {
+    transform: scale(1.05) !important;
+    padding: 12px 30px;
+    box-shadow: 0 0 10px rgba(42, 206, 247, 0.7); /* Sombra que simula brillo */
+}
+
+/* para las ciudades */
+
+input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid  #00E3C6;
+    border-radius: 5px;
+    margin-right: 10px;
+    position: relative;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.2);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+input[type="checkbox"]:checked {
+    background-color:  #00E3C6;
+    box-shadow: 0 0 10px rgba(0, 227, 198, 0.7);
+}
+
+input[type="checkbox"]:checked::before {
+    content: "✓";
+    position: absolute;
+    color: #314942;
+    font-size: 16px;
+    font-weight: bold;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Contenedor principal */
+.aeropuertos {
+  width: 80%;
+  margin: 0 auto;
+  text-align: center;
+  padding: 20px;
+  color: #ffffff;
+}
+
+/* Título */
+.aeropuertos h1 {
+  margin-bottom: 20px;
+  
+}
+
+/* Contenedor de opciones */
+.aeropuertos-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px 30px; /* Espacio vertical y horizontal */
+}
+
+/* Cada grupo label + checkbox */
+.aeropuertos-option {
+  display: flex;
+  align-items: center;
+}
+
+/* Checkbox a la derecha del label */
+.aeropuertos-option input[type="checkbox"] {
+  margin-left: 5px;
+}   
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    color: white;
+    margin: 10px 0;
+    cursor: pointer;
+    position: relative;
+    padding-left: 30px;
+}
+
+.radio-label input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.radio-custom {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #00E3C6;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.2);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.radio-text {
+    margin-left: 10px;
+}
+
+.radio-label input[type="radio"]:checked ~ .radio-custom {
+    background-color: #00E3C6;
+    box-shadow: 0 0 10px rgba(0, 227, 198, 0.7);
+}
+
+.radio-label input[type="radio"]:checked ~ .radio-custom::after {
+    content: "";
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #314942;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.radio-label:hover .radio-custom {
+    box-shadow: 0 0 8px rgba(0, 227, 198, 0.5);
+}

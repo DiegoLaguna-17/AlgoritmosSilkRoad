@@ -60,13 +60,24 @@
         <div class="column-svg">
             <!-- Panel de Control -->
             <div class="controls">
-                <label style="color: white;">Suministro:</label>
-                <input type="text" style="height: 4vh;" id="suministros"><br>
-                <span id="currentAlgorithm" style="margin-right: 20px; font-weight: bold; color: white;">Actual: Johnson</span>
-                <div id="checkboxGroup1" class="hidden">
-                    <br><br>
-                    <label style="color: white;"><input type="radio" name="check" checked value="true">Maximizar</label>
-                    <label style="color: white;"><input type="radio" name="check" value="false"> Minimizar</label>
+                <div class="sumi">
+                    <label style="color: white;">Suministro:</label>
+                    <input type="text" style="height: 4vh;" id="suministros"><br>
+                    <span id="currentAlgorithm" style="margin-right: 20px; font-weight: bold; color: white; text-align: center;">Actual: Johnson</span>
+                </div>
+                
+
+                <div id="checkboxGroup1" class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="check" checked value="true">
+                        <span class="radio-custom"></span>
+                        <span class="radio-text">Maximizar</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="check" value="false">
+                        <span class="radio-custom"></span>
+                        <span class="radio-text">Minimizar</span>
+                    </label>
                 </div>
 
                 <div id="checkboxGroupKruskal" class="hidden">
@@ -81,12 +92,12 @@
                     <label style="color: white;"><input type="radio" name="dijkstraMode" value="longest">Más Largo</label>
                 </div>
 
-                <button id="vaciarBtn">Vaciar Lienzo</button>
-                <button id="guardarGrafo">Guardar</button>
-                <button id="importarDato">Importar Grafo</button>
-                <input type="file" id="archivo" accept="application/json" style="display: none;">
-                <button id="solve-btn">Resolver</button>
-                <button id="help-btn" download>Help</button>
+                <button id="vaciarBtn" class="boton-asig">Vaciar Lienzo</button>
+                <button id="guardarGrafo" class="boton-asig">Guardar</button>
+                <button id="importarDato" class="boton-asig">Importar Grafo</button>
+                <input type="file" id="archivo" accept="application/json" style="display: none;" class="boton-asig">
+                <button id="solve-btn" class="boton-asig">Resolver</button>
+                <button id="help-btn" download class="boton-asig">Help</button>
             </div>
            <center>
                 <!-- En tu HTML (dentro de <body>) -->
@@ -95,31 +106,50 @@
             <div>
                 <h2  id="respuesta" style="color: aliceblue;"></h2>
             </div>
-            <div style="height: 200px;width: 80%;">
-
-                <h3>Aeropuertos:</h3>
-                <label for="La Paz">La Paz</label>
-                <input type="checkbox" name="La Paz" id="checkLP">
-                <label for="Santa Cruz">Santa Cruz</label>
-                <input type="checkbox" name="Santa Cruz" id="checkSC">
-                <label for="Cochabamba">Cochabamba</label>
-                <input type="checkbox" name="Cochabamba" id="checkCbba">
-                <label for="Tarija">Tarija</label>
-                <input type="checkbox" name="Tarija" id="checkTj">
-                <label for="Trinidad">Trinidad</label>
-                <input type="checkbox" name="Trinidad" id="checkTdd">
-                <label for="Sucre">Sucre</label>
-                <input type="checkbox" name="Sucre" id="checkScr">
-                <label for="Cobija">Cobija</label>
-                <input type="checkbox" name="Cobija" id="checkCbj">
-                <label for="Oruro">Oruro</label>
-                <input type="checkbox" name="Oruro" id="checkOruro">
-                <label for="Uyuni">Uyuni</label>
-                <input type="checkbox" name="Uyuni" id="checkUyuni">
+            <div class="aeropuertos">
+                <h1>Aeropuertos:</h1>
+                <div class="aeropuertos-options">
+                    <div class="aeropuertos-option">
+                    <label for="La Paz">La Paz</label>
+                    <input type="checkbox" name="La Paz" id="checkLP">
+                    </div>
+                    <div class="aeropuertos-option">
+                    <label for="Santa Cruz">Santa Cruz</label>
+                    <input type="checkbox" name="Santa Cruz" id="checkSC">
+                    </div>
+                    <div class="aeropuertos-option">
+                    <label for="Cochabamba">Cochabamba</label>
+                    <input type="checkbox" name="Cochabamba" id="checkCbba">
+                    </div>
+                    <div class="aeropuertos-option">
+                    <label for="Tarija">Tarija</label>
+                    <input type="checkbox" name="Tarija" id="checkTj">
+                    </div>
+                    <div class="aeropuertos-option">
+                    <label for="Trinidad">Trinidad</label>
+                    <input type="checkbox" name="Trinidad" id="checkTdd">
+                    </div>
+                    <div class="aeropuertos-option">
+                    <label for="Sucre">Sucre</label>
+                    <input type="checkbox" name="Sucre" id="checkScr">
+                    </div>
+                    <div class="aeropuertos-option">
+                    <label for="Cobija">Cobija</label>
+                    <input type="checkbox" name="Cobija" id="checkCbj">
+                    </div>
+                    <div class="aeropuertos-option">
+                    <label for="Oruro">Oruro</label>
+                    <input type="checkbox" name="Oruro" id="checkOruro">
+                    </div>
+                    <div class="aeropuertos-option">
+                    <label for="Uyuni">Uyuni</label>
+                    <input type="checkbox" name="Uyuni" id="checkUyuni">
+                    </div>
+                </div>
             </div>
             <!-- Matriz de Adyacencia -->
             <div class="matriz-container">
-                <h1>Matriz de adyacencia</h1>
+                <h1 style="color: aliceblue; text-align: center;" >Matriz de adyacencia</h1>
                 <div class="matriz-scroll">
                     <table id="tablaMatriz" class="matriz"></table>
                 </div>

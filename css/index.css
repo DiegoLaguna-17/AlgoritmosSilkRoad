@@ -14,7 +14,181 @@
     padding: 0;
     box-sizing: border-box;
 }
+/* Mobile First (default) */
+body {
+  margin: 0;
+  font-family: 'Gudea', sans-serif;
+  line-height: 1.6;
+}
 
+main {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+#main-header {
+  width: 100%;
+  padding: 15px;
+}
+
+.logo img {
+  max-width: 150px;
+  height: auto;
+}
+
+.nav-links {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  list-style: none;
+}
+
+.nav-links li {
+  margin: 5px 0;
+}
+
+.hero-content {
+  padding: 30px 15px;
+  text-align: center;
+}
+
+.container {
+  width: 100%;
+  position: relative;
+}
+
+.slide {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.item {
+  min-width: 100%;
+  scroll-snap-align: start;
+  position: relative;
+}
+
+.item .content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+}
+
+.button {
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  transform: translateY(-50%);
+}
+
+.explication {
+  padding: 20px 15px;
+}
+
+.card {
+  margin-bottom: 20px;
+}
+
+#aplicaciones {
+  padding: 20px 15px;
+}
+
+.contenedor1 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+}
+
+.tarjetas {
+  padding: 15px;
+}
+
+footer {
+  padding: 20px 15px;
+  text-align: center;
+}
+
+.ucb img {
+  max-width: 100px;
+}
+
+/* Tablet (≥768px) */
+@media (min-width: 768px) {
+  #main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .nav-links {
+    flex-direction: row;
+  }
+
+  .nav-links li {
+    margin: 0 15px;
+  }
+
+  .item {
+    min-width: 50%;
+  }
+
+  .explication {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .contenedor1 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+/* Desktop (≥992px) */
+@media (min-width: 992px) {
+  .item {
+    min-width: 33.33%;
+  }
+
+  .contenedor1 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Large Desktop (≥1200px) */
+@media (min-width: 1200px) {
+  .item {
+    min-width: 25%;
+  }
+
+  .contenedor1 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Hide scrollbar but keep functionality */
+.slide::-webkit-scrollbar {
+  display: none;
+}
+
+.slide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 body {
     font-family: 'Roboto', sans-serif;
     background-color: var(--primary-color);

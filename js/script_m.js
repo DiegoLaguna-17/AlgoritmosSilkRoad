@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const input = inputField.value.trim();
         
         try {
-            const response = await fetch('http://localhost:5001/laplace', {
+            const response = await fetch('https://algoritmos-silk-backend.onrender.com/laplace', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ expression: input })
@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const input = inputField.value.trim();
         
         try {
-            const response = await fetch('http://localhost:5001/ilaplace', {
+            const response = await fetch('https://algoritmos-silk-backend.onrender.com/ilaplace', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ expression: input })
@@ -521,7 +521,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fuzzyVariables = variablesData;
             fuzzyTarget = targetData;
 
-            const response = await fetch('http://localhost:5001/fuzzy/calculate', {
+            const response = await fetch('https://algoritmos-silk-backend.onrender.com/fuzzy/calculate', {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -579,7 +579,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fuzzyOutput.textContent = "Generando superficie de control...";
             fuzzyResults.style.display = 'block';
 
-            const response = await fetch('http://localhost:5001/fuzzy/plot_surface', {
+            const response = await fetch('https://algoritmos-silk-backend.onrender.com/fuzzy/plot_surface', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

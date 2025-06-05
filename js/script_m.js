@@ -101,4 +101,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    const calculateIlaplaceBtn = document.getElementById('calculate-ilaplace-btn');
+
+    calculateIlaplaceBtn.addEventListener('click', async () => {
+        const input = inputField.value.trim();
+        
+        try {
+            const response = await fetch('http://localhost:5001/ilaplace', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ expression: input })
+            });
+
+            const data = await response.json();
+            
+            if (data.error) {
+                if (data.unsupported) {
+                    showError("La transformada inversa de LaPlace no puede resolver esta expresión, debido a: Expresiones no racionales • Polos complejos no simples • Funciones especiales no soportadas.");
+                } else {
+                    resultArea.value = `Error: ${data.error}`;
+                }
+            } else {
+                resultArea.value = data.result;
+            }
+        } catch (error) {
+            showError(`Network error: ${error.message}`);
+        }
+    });
 });

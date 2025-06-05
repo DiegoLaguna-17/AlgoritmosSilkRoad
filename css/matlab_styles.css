@@ -212,3 +212,22 @@ button:hover {
         padding: 1.5rem;
     }
 }
+
+#calculate-ilaplace-btn {
+    background-color: #4caf50;
+    margin-bottom: 1rem;
+}
+
+#calculate-ilaplace-btn:hover {
+    background-color: #388e3c;
+}
+
+#calculate-btn {
+    margin-bottom: 0.5rem;
+}
+
+.const-btn {
+    background-color: #00a6ff;
+    border-color: #1497fc;
+}
+

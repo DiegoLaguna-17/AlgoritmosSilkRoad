@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MATLAB - LaPlace y Fuzzy Logic</title>
     <link rel="stylesheet" href="css/matlab_styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>Transformada de LaPlace</header>
@@ -60,6 +61,70 @@
         
         <h1>Resultado</h1>
         <textarea id="laplace_result" readonly></textarea>
+    </div>
+
+    <div class="container" id="fuzzy-container">
+        <h1>Lógica Difusa (Fuzzy Logic)</h1>
+        
+        <div class="fuzzy-setup">
+            <div class="fuzzy-input-group">
+                <label for="num-variables">Número de Variables de Entrada:</label>
+                <input type="number" id="num-variables" min="1" max="5" value="2">
+            </div>
+            
+            <div class="fuzzy-input-group">
+                <label for="num-labels">Número de Etiquetas Lingüísticas:</label>
+                <input type="number" id="num-labels" min="2" max="5" value="3">
+            </div>
+            
+            <button id="setup-fuzzy">Configurar Sistema Difuso</button>
+        </div>
+
+        <div id="label-names-container" class="label-names-container" style="display: none;">
+            <h3>Nombres de Etiquetas (Aplicar a todas las variables)</h3>
+            <div id="label-inputs" class="label-inputs">
+            </div>
+            <button id="apply-label-names-btn">Aplicar Nombres de Etiquetas</button>
+        </div>
+        
+        <div id="variables-container" class="variables-container">
+            </div>
+        
+        <div id="target-container" class="target-container" style="display: none;">
+            <h2>Variable de Salida (Target)</h2>
+            <div class="plot-wrapper">
+                <div class="plot-area" id="target-plot"></div>
+                <div class="plot-controls">
+                    <input type="text" id="target-title" placeholder="Título de la variable de salida" value="Output">
+                </div>
+            </div>
+        </div>
+        
+        <button id="calculate-fuzzy" style="display: none;">Calcular Sistema Difuso</button>
+        
+        <div id="fuzzy-surface-plot-controls" style="display: none;">
+            <h3>Visualizar Superficie de Control</h3>
+            <p>Selecciona dos variables de entrada para el gráfico 3D. Las otras se fijarán en su valor de referencia (por defecto, 50).</p>
+            <div class="input-group">
+                <label for="plot-var-1">Variable del Eje X:</label>
+                <select id="plot-var-1"></select>
+            </div>
+            <div class="input-group">
+                <label for="plot-var-2">Variable del Eje Y:</label>
+                <select id="plot-var-2"></select>
+            </div>
+            <div id="reference-values-container" style="margin-top: 10px;">
+                </div>
+            <button id="generate-surface-plot-btn">Generar Gráfico de Superficie</button>
+        </div>
+
+        <div id="fuzzy-results" class="fuzzy-results" style="display: none;">
+            <h2>Resultado del Sistema Difuso</h2>
+            <p id="fuzzy-output"></p>
+            <div class="result-plot">
+                <img id="fuzzy-result-plot" src="" alt="Fuzzy System Result">
+            </div>
+        </div>
     </div>
 
     <div id="error-modal" class="modal">

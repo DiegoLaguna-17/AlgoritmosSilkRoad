@@ -231,3 +231,239 @@ button:hover {
     border-color: #1497fc;
 }
 
+.fuzzy-setup {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 2rem;
+    align-items: flex-end;
+}
+
+.fuzzy-input-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.fuzzy-input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+.fuzzy-input-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.variables-container {
+    margin-top: 20px;
+}
+
+.variable-wrapper {
+    margin-bottom: 30px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    background-color: #f9f9f9;
+}
+
+.variable-wrapper h2 {
+    margin-top: 0;
+    color: #0076a8;
+    font-size: 1.2rem;
+}
+
+.plot-wrapper {
+    display: flex;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.plot-area {
+    flex: 3;
+    height: 300px;
+    border: 1px solid #ddd;
+    background-color: white;
+    position: relative;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+}
+
+.plot-controls {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.plot-controls input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: border-color 0.3s;
+}
+
+.plot-controls input:focus {
+    border-color: #0076a8;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 118, 168, 0.2);
+}
+
+.result-plot {
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    padding: 15px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.result-plot img {
+    max-width: 100%;
+    display: block;
+    margin: 0 auto;
+    border-radius: 6px;
+}
+
+#calculate-fuzzy {
+    margin: 20px 0;
+    background-color: #9c27b0;
+}
+
+#calculate-fuzzy:hover {
+    background-color: #7b1fa2;
+}
+
+.label-names-container {
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #e6f3ff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.label-names-container h3 {
+    margin-top: 0;
+    color: #0076a8;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+}
+
+.label-inputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.label-input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+.label-input-group input[type="text"] {
+    width: calc(100% - 16px);
+    padding: 8px;
+    border: 1px solid #b8d4f0;
+    border-radius: 4px;
+    background-color: #f0f8ff;
+}
+
+#apply-label-names-btn {
+    background-color: #28a745;
+}
+
+#apply-label-names-btn:hover {
+    background-color: #218838;
+}
+
+#fuzzy-surface-plot-controls {
+    margin-top: 30px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #f0f0f0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    display: none;
+}
+
+#fuzzy-surface-plot-controls h3 {
+    margin-top: 0;
+    color: #0076a8;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+#fuzzy-surface-plot-controls p {
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+#fuzzy-surface-plot-controls .input-group {
+    margin-bottom: 15px;
+}
+
+#fuzzy-surface-plot-controls label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+#fuzzy-surface-plot-controls select,
+#fuzzy-surface-plot-controls input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 1rem;
+}
+
+#fuzzy-surface-plot-controls select:focus,
+#fuzzy-surface-plot-controls input[type="number"]:focus {
+    border-color: #0076a8;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 118, 168, 0.2);
+}
+
+#fuzzy-surface-plot-controls .reference-input-group {
+    margin-bottom: 10px;
+    padding: 8px 0;
+    border-top: 1px dashed #e0e0e0;
+}
+
+#fuzzy-surface-plot-controls .reference-input-group:first-child {
+    border-top: none;
+}
+
+#generate-surface-plot-btn {
+    background-color: #007bff;
+    padding: 0.8rem 1.8rem;
+    font-size: 1.1rem;
+    margin-top: 20px;
+}
+
+#generate-surface-plot-btn:hover {
+    background-color: #0056b3;
+}
+
+@media (max-width: 768px) {
+    .plot-wrapper {
+        flex-direction: column;
+    }
+    .plot-controls {
+        width: 100%;
+    }
+    .label-inputs {
+        grid-template-columns: 1fr;
+    }
+}
